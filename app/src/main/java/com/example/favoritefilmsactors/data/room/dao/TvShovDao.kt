@@ -18,5 +18,5 @@ interface TvShovDao {
     suspend fun deleteAllTvShows()
 
     @Query("SELECT * FROM tv_shovs_table")
-    suspend fun getTvShows(): Flow<List<TvShowItemEntityDB>>
+    fun getTvShows(): Flow<List<TvShowItemEntityDB>>
 }

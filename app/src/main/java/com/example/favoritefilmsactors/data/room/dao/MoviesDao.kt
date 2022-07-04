@@ -18,5 +18,5 @@ interface MoviesDao {
     suspend fun deleteAllMovies()
 
     @Query("SELECT * FROM movies_table")
-    suspend fun getMovies(): Flow<List<MovieItemEntityDB>>
+    fun getMovies(): Flow<List<MovieItemEntityDB>>
 }
