@@ -1,6 +1,7 @@
-package com.example.favoritefilmsactors.data.models.tvshov
+package com.example.favoritefilmsactors.data.remote.models.tvshov
 
 
+import com.example.favoritefilmsactors.data.room.entity.TvShowItemEntityDB
 import com.google.gson.annotations.SerializedName
 
 data class TvShowItem(
@@ -14,4 +15,8 @@ data class TvShowItem(
     val overview: String?,
     @SerializedName("popularity")
     val popularity: Double?,
-)
+){
+    fun convertToDBEntity() = TvShowItemEntityDB(
+        id, name, originCountry, overview, popularity
+    )
+}

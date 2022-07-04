@@ -1,4 +1,4 @@
-package com.example.favoritefilmsactors.data.models.tvshov
+package com.example.favoritefilmsactors.data.remote.models.tvshov
 
 
 import com.google.gson.annotations.SerializedName

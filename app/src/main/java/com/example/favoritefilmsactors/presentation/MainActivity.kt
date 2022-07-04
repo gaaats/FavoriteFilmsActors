@@ -1,4 +1,4 @@
-package com.example.favoritefilmsactors
+package com.example.favoritefilmsactors.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

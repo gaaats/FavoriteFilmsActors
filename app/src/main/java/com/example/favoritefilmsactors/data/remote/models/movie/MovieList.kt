@@ -1,4 +1,4 @@
-package com.example.favoritefilmsactors.data.models.movie
+package com.example.favoritefilmsactors.data.remote.models.movie
 
 
 import com.google.gson.annotations.SerializedName

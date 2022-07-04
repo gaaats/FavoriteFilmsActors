@@ -1,8 +1,8 @@
-package com.example.favoritefilmsactors.data.api
+package com.example.favoritefilmsactors.data.remote.api
 
-import com.example.favoritefilmsactors.data.models.actors.ActorsList
-import com.example.favoritefilmsactors.data.models.movie.MovieList
-import com.example.favoritefilmsactors.data.models.tvshov.TvShovList
+import com.example.favoritefilmsactors.data.remote.models.actors.ActorsList
+import com.example.favoritefilmsactors.data.remote.models.movie.MovieList
+import com.example.favoritefilmsactors.data.remote.models.tvshov.TvShovList
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
