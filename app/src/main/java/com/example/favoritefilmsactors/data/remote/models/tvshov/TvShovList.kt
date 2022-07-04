@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class TvShovList(
     @SerializedName("results")
-    val listOfTvShow: List<TvShowItem>,
+    val listOfTvShow: List<TvShowItemNetEntity>,
 )

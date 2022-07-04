@@ -4,7 +4,7 @@ package com.example.favoritefilmsactors.data.remote.models.actors
 import com.example.favoritefilmsactors.data.room.entity.ActorItemEntityDB
 import com.google.gson.annotations.SerializedName
 
-data class ActorItem(
+data class ActorItemNetEntity(
     @SerializedName("id")
     val id: Int,
     @SerializedName("name")

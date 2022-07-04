@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class ActorsList(
     @SerializedName("results")
-    val results: List<ActorItem>,
+    val results: List<ActorItemNetEntity>,
 )

@@ -18,5 +18,5 @@ interface ActorsDao {
     suspend fun deleteAllActors()
 
     @Query("SELECT * FROM movies_table")
-    fun getActors(): Flow<List<ActorItemEntityDB>>
+    suspend fun getActors(): List<ActorItemEntityDB>
 }
