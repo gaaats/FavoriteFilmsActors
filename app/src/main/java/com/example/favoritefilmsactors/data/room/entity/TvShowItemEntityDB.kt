@@ -1,10 +1,9 @@
 package com.example.favoritefilmsactors.data.room.entity
 
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.favoritefilmsactors.constance.Constance
+import com.example.favoritefilmsactors.utils.constance.Constance
 import com.example.favoritefilmsactors.data.remote.models.tvshov.TvShowItemNetEntity
 import com.example.favoritefilmsactors.domain.entity.TvShovSimple
 

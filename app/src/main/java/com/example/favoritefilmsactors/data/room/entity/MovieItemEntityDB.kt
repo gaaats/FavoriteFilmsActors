@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieItemNetEntity
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.constance.Constance as Const1
+import com.example.favoritefilmsactors.utils.constance.Constance as Const1
 
 @Entity(tableName = "movies_table")
 data class MovieItemEntityDB(

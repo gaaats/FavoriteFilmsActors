@@ -1,4 +1,4 @@
-package com.example.favoritefilmsactors.constance
+package com.example.favoritefilmsactors.utils.constance
 
 object Constance {
     const val TAG = "MY_TAG"

@@ -1,7 +1,7 @@
 package com.example.favoritefilmsactors.data.repo
 
 import android.util.Log
-import com.example.favoritefilmsactors.constance.Constance
+import com.example.favoritefilmsactors.utils.constance.Constance
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieItemNetEntity
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieCacheDataSource
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieLocalDataSource
