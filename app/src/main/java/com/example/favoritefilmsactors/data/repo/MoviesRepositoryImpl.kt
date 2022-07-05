@@ -32,7 +32,7 @@ class MoviesRepositoryImpl(
             it.convertToDBEntity()
         })
 
-        // NEED to male fun convert from all classes or make separate class
+        // NEED to make fun convert from all classes or make separate class
 
         movieCacheDataSource.saveMoviesToCache(nevUpdatedList.map {
             it.convertToDBEntity().convertToSimpleEntity()

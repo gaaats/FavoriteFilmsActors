@@ -11,14 +11,15 @@ interface TMDBService {
 
     companion object {
         const val BASE_URL = "https://api.themoviedb.org"
+        const val API_KEY = "450fc2a680aa5693bf2e69ce39671d03"
     }
 
     @GET("movie/popular")
-    suspend fun getPopularMovies(@Query("api_key") apiKey: String): Response<MovieList>
+    suspend fun getPopularMovies(@Query("api_key") apiKey: String = API_KEY): Response<MovieList>
 
     @GET("tv/popular")
-    suspend fun getPopularTVShovs(@Query("api_key") apiKey: String): Response<TvShovList>
+    suspend fun getPopularTVShovs(@Query("api_key") apiKey: String = API_KEY): Response<TvShovList>
 
     @GET("person/popular")
-    suspend fun getPopularActors(@Query("api_key") apiKey: String): Response<ActorsList>
+    suspend fun getPopularActors(@Query("api_key") apiKey: String = API_KEY): Response<ActorsList>
 }
