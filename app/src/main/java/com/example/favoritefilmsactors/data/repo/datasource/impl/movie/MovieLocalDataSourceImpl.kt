@@ -6,8 +6,9 @@ import com.example.favoritefilmsactors.data.room.entity.MovieItemEntityDB
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MovieLocalDataSourceImpl(
+class MovieLocalDataSourceImpl @Inject constructor(
     private val moviesDao: MoviesDao
 ) : MovieLocalDataSource {
     override suspend fun getMoviesFromDB(): List<MovieItemEntityDB> {

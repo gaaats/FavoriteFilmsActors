@@ -4,12 +4,14 @@ import com.example.favoritefilmsactors.data.remote.api.TMDBService
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieList
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieRemoteDataSource
 import retrofit2.Response
+import javax.inject.Inject
 
-class MovieRemoteDataSourceImpl (
+class MovieRemoteDataSourceImpl @Inject constructor(
     private val apiService: TMDBService,
-    private val apiKey: String
+    // TRY TO ADD HERE  private val apiKey: String
+
     ): MovieRemoteDataSource {
     override suspend fun downloadMoviesFromNet(): Response<MovieList> {
-        return apiService.getPopularMovies(apiKey)
+        return apiService.getPopularMovies()
     }
 }

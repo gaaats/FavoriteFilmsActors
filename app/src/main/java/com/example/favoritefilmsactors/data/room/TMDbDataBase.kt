@@ -16,7 +16,7 @@ import com.example.favoritefilmsactors.data.room.entity.TvShowItemEntityDB
     version = 1,
     exportSchema = false
 )
-abstract class TMDbDataBase : RoomDatabase() {
+abstract class TMDbDataBase() : RoomDatabase() {
 
     abstract fun getActorsDAO(): ActorsDao
     abstract fun getMoviesDao(): MoviesDao
@@ -41,6 +41,7 @@ abstract class TMDbDataBase : RoomDatabase() {
                     TMDbDataBase::class.java,
                     DATA_BASE_NAME
                 )
+                    .allowMainThreadQueries()
                     .build()
                 INSTANCE = db
                 return db

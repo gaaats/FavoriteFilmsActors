@@ -9,11 +9,13 @@ import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieRemoteDat
 import com.example.favoritefilmsactors.data.room.entity.MovieItemEntityDB
 import com.example.favoritefilmsactors.domain.MovieRepository
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
+import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
-class MoviesRepositoryImpl(
+class MoviesRepositoryImpl @Inject constructor(
     private val movieLocalDataSource: MovieLocalDataSource,
     private val movieRemoteDataSource: MovieRemoteDataSource,
-    private val movieCacheDataSource: MovieCacheDataSource,
+    private val movieCacheDataSource: MovieCacheDataSource
 ) : MovieRepository {
 
     lateinit var movieListItemNetEntity: List<MovieItemNetEntity>
@@ -41,15 +43,20 @@ class MoviesRepositoryImpl(
     }
 
     suspend fun getMoviesFromAPI(): List<MovieItemNetEntity> {
-        try {
-            val response = movieRemoteDataSource.downloadMoviesFromNet()
-            if (response.isSuccessful && response.body() != null){
-                movieListItemNetEntity = response.body()!!.movies
-            }
+        val response = movieRemoteDataSource.downloadMoviesFromNet()
+        if(response.isSuccessful){
+            Log.d(Constance.TAG, "good")
         }
-        catch (e:Exception){
-            Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromAPI")
-        }
+        movieListItemNetEntity = response.body()!!.movies
+//        try {
+//            val response = movieRemoteDataSource.downloadMoviesFromNet()
+////            if (response.isSuccessful){
+//                movieListItemNetEntity = response.body()!!.movies
+////            }
+//        }
+//        catch (e:Exception){
+//            Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromAPI")
+//        }
         return movieListItemNetEntity
     }
 
