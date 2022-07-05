@@ -43,6 +43,7 @@ class MoviesRepositoryImpl @Inject constructor(
     }
 
     suspend fun getMoviesFromAPI(): List<MovieItemNetEntity> {
+        Log.d(Constance.TAG, "getMoviesFromAPI")
         val response = movieRemoteDataSource.downloadMoviesFromNet()
         if(response.isSuccessful){
             Log.d(Constance.TAG, "good")
@@ -61,6 +62,7 @@ class MoviesRepositoryImpl @Inject constructor(
     }
 
     suspend fun getMoviesFromDataBase():List<MovieItemEntityDB>{
+        Log.d(Constance.TAG, "getMoviesFromDataBase")
         try {
             movieListItemDBEntity = movieLocalDataSource.getMoviesFromDB()
         }
@@ -77,6 +79,7 @@ class MoviesRepositoryImpl @Inject constructor(
     }
 
     suspend fun getMoviesFromCache():List<MovieSimple>{
+        Log.d(Constance.TAG, "getMoviesFromCache")
         try {
             movieListItemSimple = movieCacheDataSource.getMoviesFormCache()
         }

@@ -33,14 +33,15 @@ import javax.inject.Inject
 class FragmentMoviesList : Fragment() {
 
     @Inject
-    lateinit var vievModelfactory : MovieVievModelFactory
+    lateinit var vievModelfactory: MovieVievModelFactory
 
     val movieVievModel by lazy {
         ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
     }
 
     private var _binding: FragmentMoviesListBinding? = null
-    private val binding get() = _binding ?: throw RuntimeException("FragmentMoviesListBinding is null")
+    private val binding
+        get() = _binding ?: throw RuntimeException("FragmentMoviesListBinding is null")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +68,13 @@ class FragmentMoviesList : Fragment() {
 //        val service = retrofit.create(TMDBService::class.java)
 //        getListFromNetvork(service)
 
-        collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies){
+        collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
             movieAdapter.submitList(it)
+        }
+
+        movieVievModel.loading.observe(viewLifecycleOwner) {
+            if (it) binding.progBar.visibility = View.VISIBLE
+            else binding.progBar.visibility = View.GONE
         }
 
 
@@ -107,9 +113,13 @@ class FragmentMoviesList : Fragment() {
         }
     }
 }
-fun <T> Fragment.collectFlovAndRepeatOnLifeCycle(flow: Flow<T>, functionSuspend: suspend (T)-> Unit){
+
+fun <T> Fragment.collectFlovAndRepeatOnLifeCycle(
+    flow: Flow<T>,
+    functionSuspend: suspend (T) -> Unit
+) {
     lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED){
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
             flow.collect(functionSuspend)
         }
     }

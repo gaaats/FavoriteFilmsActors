@@ -1,5 +1,7 @@
 package com.example.favoritefilmsactors.presentation.vievmodels
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
@@ -12,15 +14,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MovieVievModel @Inject constructor(
-    private val getMovies : GetMoviesUseCase,
+    private val getMovies: GetMoviesUseCase,
     private val updateMovie: GetMoviesUseCase
 ) : ViewModel() {
 
+    private var _loading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean>
+        get() = _loading
+
     private lateinit var moviesFlow: StateFlow<List<MovieSimple>>
+
     // FOR NORMAL APP
     val getFlovMovies = flow {
+        _loading.value=true
+        delay(1000)
         val items = getMovies.invoke() ?: throw RuntimeException("getFlovMovies is null")
         emit(items)
+        _loading.value = false
     }
 
     val updateFlovMovies = flow {
