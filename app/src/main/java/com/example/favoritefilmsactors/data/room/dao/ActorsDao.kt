@@ -14,9 +14,9 @@ interface ActorsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveActors(actors: List<ActorItemEntityDB>)
 
-    @Query("DELETE FROM ")
+    @Query("DELETE FROM actors_table")
     suspend fun deleteAllActors()
 
-    @Query("SELECT * FROM movies_table")
+    @Query("SELECT * FROM actors_table")
     suspend fun getActors(): List<ActorItemEntityDB>
 }

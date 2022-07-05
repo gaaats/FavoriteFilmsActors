@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_nav"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/actorsFragment"
+        android:name="com.example.favoritefilmsactors.presentation.ActorsFragment"
+        android:label="fragment_actors"
+        tools:layout="@layout/fragment_actors" >
+        <action
+            android:id="@+id/action_actorsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.favoritefilmsactors.presentation.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_actorsFragment"
+            app:destination="@id/actorsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_fragmentMoviesList"
+            app:destination="@id/fragmentMoviesList" />
+        <action
+            android:id="@+id/action_homeFragment_to_tvShovFragment"
+            app:destination="@id/tvShovFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/tvShovFragment"
+        android:name="com.example.favoritefilmsactors.presentation.TvShovFragment"
+        android:label="fragment_tv_shov"
+        tools:layout="@layout/fragment_tv_shov" >
+        <action
+            android:id="@+id/action_tvShovFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentMoviesList"
+        android:name="com.example.favoritefilmsactors.presentation.FragmentMoviesList"
+        android:label="fragment_movies_list"
+        tools:layout="@layout/fragment_movies_list" >
+        <action
+            android:id="@+id/action_fragmentMoviesList_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+</navigation>
