@@ -35,6 +35,9 @@ class FragmentMoviesList : Fragment() {
     @Inject
     lateinit var vievModelfactory: MovieVievModelFactory
 
+    @Inject
+    lateinit var movieAdapter : MovieListAdapter
+
     val movieVievModel by lazy {
         ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
     }
@@ -57,7 +60,7 @@ class FragmentMoviesList : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val movieAdapter = MovieListAdapter()
+//        val movieAdapter = MovieListAdapter()
         binding.recVievPlaceHolder.adapter = movieAdapter
 
 //        val retrofit = Retrofit.Builder()

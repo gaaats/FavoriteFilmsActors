@@ -12,8 +12,9 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MovieListAdapter :
+class MovieListAdapter @Inject constructor() :
     ListAdapter<MovieSimple, MovieRecVievVievHolder>(MovieDiffUtilListAdapter()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieRecVievVievHolder {
         var count = 1
