@@ -53,7 +53,8 @@ class MoviesRepositoryImpl @Inject constructor(
             Log.d(Constance.TAG, "good load images")
             val prepare = result.body()?.posters!!
             for (elemnt in prepare){
-                if (prepare.indexOf(elemnt) %15 == 0){
+                Log.d(Constance.TAG, "getListOfImages: ${elemnt.filePath}")
+                if (prepare.indexOf(elemnt) %5 == 0){
                     ImagesItem(filePath = Constance.BASE_PATH_IMAGE+elemnt.filePath).also {
                         if (listForReturn.size <= MAX_SIZE_IMAGE_LIST) {
                             // add just 4 elements

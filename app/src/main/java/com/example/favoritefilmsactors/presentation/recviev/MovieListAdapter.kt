@@ -27,16 +27,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
 
-class MovieListAdapter @Inject constructor(
-    private val apiService: TMDBService
-) :
+class MovieListAdapter @Inject constructor() :
     ListAdapter<MovieSimple, MovieRecVievVievHolder>(MovieDiffUtilListAdapter()) {
-
 
     var navigate: ((id: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieRecVievVievHolder {
-        var count = 1
         LayoutInflater.from(parent.context).inflate(R.layout.single_item_movie, parent, false)
             .also {
                 return MovieRecVievVievHolder(it)
@@ -57,32 +53,10 @@ class MovieListAdapter @Inject constructor(
             CoroutineScope(Dispatchers.IO).launch {
                 img.load(currentUriImg) {
                     placeholder(R.drawable.ic_baseline_downloading_24)
-//                    crossfade(true)
-//                    crossfade(200)
                 }
             }
             cardViev.setOnClickListener {
                 navigateToPagerFragment(currentMovie)
-                /*
-                Snackbar.ANIMATION_MODE_SLIDE
-                Snackbar.make(
-                    it, "You pressed: ${currentMovie.title}", Snackbar.LENGTH_SHORT
-                ).show()
-                 */
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    val images = apiService.getMoviesImages(movieId = currentMovie.id)
-//                    if (images.isSuccessful) {
-//                        Log.d(Constance.TAG, "good load images")
-//                        images?.body()?.posters?.let {
-//                            it.forEach { posterItem ->
-//                                Log.d(Constance.TAG, "path is: ${posterItem.filePath}")
-//                            }
-//                        }
-//                    } else {
-//                        Log.d(Constance.TAG, "ERROR in load images")
-//                    }
-//                }
-
             }
         }
     }
