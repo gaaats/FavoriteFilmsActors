@@ -2,6 +2,7 @@ package com.example.favoritefilmsactors.presentation.recviev
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.findFragment
@@ -24,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 class MovieListAdapter @Inject constructor(
     private val apiService: TMDBService
@@ -31,7 +33,7 @@ class MovieListAdapter @Inject constructor(
     ListAdapter<MovieSimple, MovieRecVievVievHolder>(MovieDiffUtilListAdapter()) {
 
 
-    var navigate: ((id: Int)->Unit)? = null
+    var navigate: ((id: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieRecVievVievHolder {
         var count = 1
@@ -42,6 +44,10 @@ class MovieListAdapter @Inject constructor(
     }
 
     override fun onBindViewHolder(holder: MovieRecVievVievHolder, position: Int) {
+        if (Random.nextBoolean()) {
+            holder.binding.star5.visibility = View.INVISIBLE
+        } else holder.binding.star5.visibility = View.VISIBLE
+
         val currentMovie = getItem(position)
         val currentUriImg = Constance.BASE_PATH_IMAGE + currentMovie.posterPath
         holder.binding.apply {

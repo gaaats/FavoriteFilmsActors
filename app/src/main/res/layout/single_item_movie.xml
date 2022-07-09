@@ -47,16 +47,60 @@
                 android:textStyle="bold"
                 android:textSize="35sp" />
 
-            <TextView
-                android:id="@+id/tv_mark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                tools:text="5.0"
-                android:gravity="end"
-                android:textColor="@color/black"
-                android:textStyle="italic"
-                android:textSize="15sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:id="@+id/linStars"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:id="@+id/star2"
+                    android:src="@drawable/ic_baseline_star_24"
+                    android:layout_height="25dp"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:id="@+id/star3"
+                    android:src="@drawable/ic_baseline_star_24"
+                    android:layout_height="25dp"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:id="@+id/star4"
+                    android:src="@drawable/ic_baseline_star_24"
+                    android:layout_height="25dp"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:id="@+id/star1"
+                    android:src="@drawable/ic_baseline_star_24"
+                    android:layout_height="25dp"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:id="@+id/star5"
+                    android:src="@drawable/ic_baseline_star_24"
+                    android:layout_height="25dp"/>
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_weight="3"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spaceForStaer"/>
+                <TextView
+                    android:id="@+id/tv_mark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:layout_gravity="end"
+                    tools:text="5.0"
+                    android:gravity="end"
+                    android:textColor="@color/black"
+                    android:textStyle="italic"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardVievForImg"
