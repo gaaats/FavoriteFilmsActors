@@ -7,5 +7,5 @@ data class ImagesList(
     @SerializedName("id")
     val id: Int?,
     @SerializedName("posters")
-    val posters: List<Poster?>?
+    val posters: List<Poster>?
 )

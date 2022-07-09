@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_homeFragment_to_tvShovFragment"
             app:destination="@id/tvShovFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_pagerFragment"
+            app:destination="@id/pagerFragment" />
     </fragment>
     <fragment
         android:id="@+id/tvShovFragment"
@@ -46,5 +49,23 @@
         <action
             android:id="@+id/action_fragmentMoviesList_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_fragmentMoviesList_to_pagerFragment"
+            app:destination="@id/pagerFragment" >
+            <argument
+                android:name="movie_id"
+                app:argType="integer"
+                android:defaultValue="-1" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/pagerFragment"
+        android:name="com.example.favoritefilmsactors.presentation.PagerFragment"
+        android:label="fragment_movies_image_pager"
+        tools:layout="@layout/fragment_movies_image_pager" >
+        <argument
+            android:name="movie_id"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 </navigation>

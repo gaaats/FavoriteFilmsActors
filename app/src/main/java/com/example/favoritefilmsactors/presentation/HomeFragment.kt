@@ -36,7 +36,8 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_homeFragment_to_actorsFragment)
         }
         binding.btnTvShows.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_tvShovFragment)
+//            findNavController().navigate(R.id.action_homeFragment_to_tvShovFragment)
+            findNavController().navigate(R.id.action_homeFragment_to_pagerFragment)
         }
         super.onViewCreated(view, savedInstanceState)
     }

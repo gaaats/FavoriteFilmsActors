@@ -11,6 +11,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.example.favoritefilmsactors.R
 import com.example.favoritefilmsactors.data.remote.api.TMDBService
 import com.example.favoritefilmsactors.data.room.TMDbDataBase
@@ -36,7 +38,7 @@ class FragmentMoviesList : Fragment() {
     lateinit var vievModelfactory: MovieVievModelFactory
 
     @Inject
-    lateinit var movieAdapter : MovieListAdapter
+    lateinit var movieAdapter: MovieListAdapter
 
     val movieVievModel by lazy {
         ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
@@ -74,10 +76,15 @@ class FragmentMoviesList : Fragment() {
         collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
             movieAdapter.submitList(it)
         }
-
         movieVievModel.loading.observe(viewLifecycleOwner) {
             if (it) binding.progBar.visibility = View.VISIBLE
             else binding.progBar.visibility = View.GONE
+        }
+        movieAdapter.navigate = {
+            FragmentMoviesListDirections.actionFragmentMoviesListToPagerFragment(it).also {
+                findNavController().navigate(it)
+            }
+            Log.d(Constance.TAG, "movieAdapter.navigate")
         }
 
 
@@ -113,6 +120,11 @@ class FragmentMoviesList : Fragment() {
             return FragmentMoviesList().apply {
                 arguments = Bundle()
             }
+        }
+
+        fun openPager() {
+            NavHostFragment.findNavController(fragment = FragmentMoviesList())
+                .navigate(R.id.action_fragmentMoviesList_to_pagerFragment)
         }
     }
 }

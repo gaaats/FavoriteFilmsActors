@@ -1,22 +1,34 @@
 package com.example.favoritefilmsactors.presentation.vievmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
+import com.example.favoritefilmsactors.domain.usecase.GetMovImagesUseCase
 import com.example.favoritefilmsactors.domain.usecase.GetMoviesUseCase
+import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MovieVievModel @Inject constructor(
     private val getMovies: GetMoviesUseCase,
-    private val updateMovie: GetMoviesUseCase
+    private val updateMovie: GetMoviesUseCase,
+    private val getImages: GetMovImagesUseCase,
 ) : ViewModel() {
+
+    private var _listImages = MutableLiveData<List<ImagesItem>>()
+    val listImages: LiveData<List<ImagesItem>>
+        get() = _listImages
+
 
     private var _loading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean>
@@ -36,6 +48,18 @@ class MovieVievModel @Inject constructor(
     val updateFlovMovies = flow {
         val items = updateMovie.invoke() ?: throw RuntimeException("updateFlovMovies is null")
         emit(items)
+    }
+
+
+    suspend fun loadImagesList(imageId:Int){
+        withContext(Dispatchers.Main){
+            _listImages.value = getImages.invoke(imageId)
+        }
+    }
+    fun checkInside(){
+        for (element in listImages.value!!){
+            Log.d(Constance.TAG, "inside livedata: ${element.filePath}")
+        }
     }
 
     //TEST

@@ -2,6 +2,7 @@ package com.example.favoritefilmsactors.data.remote.api
 
 import com.example.favoritefilmsactors.data.remote.models.actors.ActorsList
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieList
+import com.example.favoritefilmsactors.data.remote.models.movie.images.ImagesList
 import com.example.favoritefilmsactors.data.remote.models.tvshov.TvShovList
 import retrofit2.Response
 import retrofit2.http.GET
@@ -21,9 +22,9 @@ interface TMDBService {
 
     @GET("movie/{movie_id}/images")
     suspend fun getMoviesImages(
-        @Query("api_key") apiKey: String = API_KEY,
-        @Path("movie_id") movieId:Int
-    ): Response<MovieList>
+        @Path("movie_id") movieId:Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ): Response<ImagesList>
 
     @GET("tv/popular")
     suspend fun getPopularTVShovs(@Query("api_key") apiKey: String = API_KEY): Response<TvShovList>
