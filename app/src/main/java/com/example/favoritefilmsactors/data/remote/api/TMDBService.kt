@@ -1,5 +1,6 @@
 package com.example.favoritefilmsactors.data.remote.api
 
+import com.example.favoritefilmsactors.BuildConfig
 import com.example.favoritefilmsactors.data.remote.models.actors.ActorsList
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieList
 import com.example.favoritefilmsactors.data.remote.models.movie.images.ImagesList
@@ -18,18 +19,25 @@ interface TMDBService {
     }
 
     @GET("movie/popular")
-    suspend fun getPopularMovies(@Query("api_key") apiKey: String = API_KEY): Response<MovieList>
+    suspend fun getPopularMovies(@Query("api_key") apiKey: String = BuildConfig.API_KEY): Response<MovieList>
 
     @GET("movie/{movie_id}/images")
     suspend fun getMoviesImages(
         @Path("movie_id") movieId:Int,
-        @Query("api_key") apiKey: String = API_KEY,
+        @Query("api_key") apiKey: String = BuildConfig.API_KEY,
         @Query("language") language: String = "en"
     ): Response<ImagesList>
 
+    @GET("search/movie")
+    suspend fun getSearchedMoviesByName(
+        @Query("api_key") apiKey: String = BuildConfig.API_KEY,
+        @Query("language") language: String = "en",
+        @Query("query") query: String,
+    ): Response<MovieList>
+
     @GET("tv/popular")
-    suspend fun getPopularTVShovs(@Query("api_key") apiKey: String = API_KEY): Response<TvShovList>
+    suspend fun getPopularTVShovs(@Query("api_key") apiKey: String = BuildConfig.API_KEY): Response<TvShovList>
 
     @GET("person/popular")
-    suspend fun getPopularActors(@Query("api_key") apiKey: String = API_KEY): Response<ActorsList>
+    suspend fun getPopularActors(@Query("api_key") apiKey: String = BuildConfig.API_KEY): Response<ActorsList>
 }
