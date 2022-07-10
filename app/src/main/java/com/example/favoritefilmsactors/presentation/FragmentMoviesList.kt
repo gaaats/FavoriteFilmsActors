@@ -36,10 +36,8 @@ class FragmentMoviesList : Fragment() {
 
     @Inject
     lateinit var vievModelfactory: MovieVievModelFactory
-
     @Inject
     lateinit var movieAdapter: MovieListAdapter
-
     val movieVievModel by lazy {
         ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
     }
@@ -50,7 +48,6 @@ class FragmentMoviesList : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -65,6 +62,7 @@ class FragmentMoviesList : Fragment() {
 //        val movieAdapter = MovieListAdapter()
         binding.recVievPlaceHolder.adapter = movieAdapter
 
+/*
 //        val retrofit = Retrofit.Builder()
 //            .baseUrl(TMDBService.BASE_URL)
 //            .addConverterFactory(GsonConverterFactory.create())
@@ -72,26 +70,34 @@ class FragmentMoviesList : Fragment() {
 
 //        val service = retrofit.create(TMDBService::class.java)
 //        getListFromNetvork(service)
+ */
 
         collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
             movieAdapter.submitList(it)
         }
-        movieVievModel.loading.observe(viewLifecycleOwner) {
-            if (it) binding.progBar.visibility = View.VISIBLE
-            else binding.progBar.visibility = View.GONE
-        }
+        initProgBar()
+        initNavigationForMoreImages()
+
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+
+    private fun initNavigationForMoreImages() {
         movieAdapter.navigate = {
             FragmentMoviesListDirections.actionFragmentMoviesListToPagerFragment(it).also {
                 findNavController().navigate(it)
             }
             Log.d(Constance.TAG, "movieAdapter.navigate")
         }
-
-
-
-        super.onViewCreated(view, savedInstanceState)
     }
 
+    private fun initProgBar() {
+        movieVievModel.loading.observe(viewLifecycleOwner) {
+            if (it) binding.progBar.visibility = View.VISIBLE
+            else binding.progBar.visibility = View.GONE
+        }
+    }
+/*
 //    private fun getListFromNetvork(service: TMDBService) {
 //        CoroutineScope(Dispatchers.IO).launch {
 //            val result = service.getPopularMovies()
@@ -109,12 +115,14 @@ class FragmentMoviesList : Fragment() {
 //        }
 //    }
 
+ */
 
     override fun onDestroy() {
         _binding = null
         super.onDestroy()
     }
 
+    /*
     companion object {
         fun generateFragmentMoviesList(): FragmentMoviesList {
             return FragmentMoviesList().apply {
@@ -127,6 +135,7 @@ class FragmentMoviesList : Fragment() {
                 .navigate(R.id.action_fragmentMoviesList_to_pagerFragment)
         }
     }
+     */
 }
 
 fun <T> Fragment.collectFlovAndRepeatOnLifeCycle(
