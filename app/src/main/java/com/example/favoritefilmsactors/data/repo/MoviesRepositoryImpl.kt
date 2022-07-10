@@ -29,13 +29,25 @@ class MoviesRepositoryImpl @Inject constructor(
         return getMoviesFromCache()
     }
 
+    override suspend fun getSearchedMoviesByNameUseCase(query: String): List<MovieSimple> {
+        val result = movieRemoteDataSource.getSearchedMoviesByName(query)
+//        if (result.isSuccessful){
+            return result.body()?.movies?.map {
+                it.convertToSimpleEntity()
+            }
+                ?:throw RuntimeException("error or NULL in MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
+//        } else {
+//            throw RuntimeException("loading failed MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
+//        }
+    }
+
+
     override suspend fun updateMovies(): List<MovieItemNetEntity>? {
         val nevUpdatedList = getMoviesFromAPI()
         movieLocalDataSource.deleteAllMoviesFromDB()
         movieLocalDataSource.saveMoviesToDB(nevUpdatedList.map {
             it.convertToDBEntity()
         })
-
         // NEED to make fun convert from all classes or make separate class
 
         movieCacheDataSource.saveMoviesToCache(nevUpdatedList.map {

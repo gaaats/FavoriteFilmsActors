@@ -57,6 +57,9 @@
                 app:argType="integer"
                 android:defaultValue="-1" />
         </action>
+        <action
+            android:id="@+id/action_fragmentMoviesList_to_favoriteMoviesFragment"
+            app:destination="@id/favoriteMoviesFragment" />
     </fragment>
     <fragment
         android:id="@+id/pagerFragment"
@@ -67,5 +70,14 @@
             android:name="movie_id"
             app:argType="integer"
             android:defaultValue="-1" />
+    </fragment>
+    <fragment
+        android:id="@+id/favoriteMoviesFragment"
+        android:name="com.example.favoritefilmsactors.FavoriteMoviesFragment"
+        android:label="fragment_favorite_movies"
+        tools:layout="@layout/fragment_favorite_movies" >
+        <action
+            android:id="@+id/action_favoriteMoviesFragment_to_fragmentMoviesList"
+            app:destination="@id/fragmentMoviesList" />
     </fragment>
 </navigation>

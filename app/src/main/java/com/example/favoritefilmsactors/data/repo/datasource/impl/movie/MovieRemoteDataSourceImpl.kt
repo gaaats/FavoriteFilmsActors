@@ -19,4 +19,8 @@ class MovieRemoteDataSourceImpl @Inject constructor(
     override suspend fun downloadImagesFromNet(movieId:Int): Response<ImagesList> {
         return apiService.getMoviesImages(movieId)
     }
+
+    override suspend fun getSearchedMoviesByName(querySearch: String): Response<MovieList> {
+        return apiService.getSearchedMoviesByName(query = querySearch)
+    }
 }

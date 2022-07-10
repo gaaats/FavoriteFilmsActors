@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -22,11 +23,9 @@ import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
@@ -36,6 +35,7 @@ class FragmentMoviesList : Fragment() {
 
     @Inject
     lateinit var vievModelfactory: MovieVievModelFactory
+
     @Inject
     lateinit var movieAdapter: MovieListAdapter
     val movieVievModel by lazy {
@@ -59,28 +59,90 @@ class FragmentMoviesList : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        val movieAdapter = MovieListAdapter()
         binding.recVievPlaceHolder.adapter = movieAdapter
 
 /*
-//        val retrofit = Retrofit.Builder()
-//            .baseUrl(TMDBService.BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(TMDBService.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        val service = retrofit.create(TMDBService::class.java)
+        */
 
-//        val service = retrofit.create(TMDBService::class.java)
-//        getListFromNetvork(service)
- */
-
-        collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
-            movieAdapter.submitList(it)
-        }
+        initLoadingPopularMoviesOnMainScreen()
         initProgBar()
         initNavigationForMoreImages()
+        createSearchByNameMovie()
 
+        /*
+//        binding.searchViev.setOnClickListener {
+//            /* TEST
+//            CoroutineScope(Dispatchers.IO).launch {
+//                val result = service.getSearchedMoviesByName(query = "паук")
+//                Log.d(Constance.TAG, "result is: ${result.code()}")
+//                result.body()!!.movies.forEach {
+//                    Log.d(Constance.TAG, "result is: ${it.title}")
+//                }
+//            }        */
+//            CoroutineScope(Dispatchers.IO).launch {
+//                movieVievModel.searchMovieByName("человек паук")
+//                delay(2000)
+//                withContext(Dispatchers.Main) {
+//                    movieVievModel.listMovies.observe(viewLifecycleOwner){
+//                        movieAdapter.submitList(it)
+//                    }
+//                }
+//            }
+//        }
+         */
         super.onViewCreated(view, savedInstanceState)
     }
 
+    private fun initLoadingPopularMoviesOnMainScreen() {
+        collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
+            movieAdapter.submitList(it)
+        }
+    }
+
+    private fun createSearchByNameMovie() {
+
+        binding.searchViev.setOnSearchClickListener {
+            binding.recVievPlaceHolder.alpha = 0.1F
+        }
+
+        binding.searchViev.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                initSearchInsideSearchViev(query, false)
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+//                initSearchInsideSearchViev(newText, true)
+                return false
+            }
+        })
+        binding.searchViev.setOnCloseListener {
+            initLoadingPopularMoviesOnMainScreen()
+            binding.recVievPlaceHolder.alpha = 1F
+            false
+        }
+    }
+
+    private fun initSearchInsideSearchViev(query: String?, needDelay: Boolean = false) {
+        binding.recVievPlaceHolder.alpha = 0.1F
+        CoroutineScope(Dispatchers.IO).launch {
+            if (needDelay) delay(3000)
+            binding.recVievPlaceHolder.alpha = 1F
+            if (query?.isNotEmpty() == true && query.isNotBlank()) {
+                movieVievModel.searchMovieByName(query)
+                withContext(Dispatchers.Main) {
+                    movieVievModel.listMovies.observe(viewLifecycleOwner) {
+                        movieAdapter.submitList(it)
+                    }
+                }
+            }
+        }
+    }
 
     private fun initNavigationForMoreImages() {
         movieAdapter.navigate = {
@@ -93,8 +155,18 @@ class FragmentMoviesList : Fragment() {
 
     private fun initProgBar() {
         movieVievModel.loading.observe(viewLifecycleOwner) {
-            if (it) binding.progBar.visibility = View.VISIBLE
-            else binding.progBar.visibility = View.GONE
+            binding.apply {
+                if (it) {
+                    recVievPlaceHolder.visibility = View.INVISIBLE
+                    searchViev.visibility = View.INVISIBLE
+                    progBar.visibility = View.VISIBLE
+                }  else{
+                    recVievPlaceHolder.visibility = View.VISIBLE
+                    searchViev.visibility = View.VISIBLE
+                    progBar.visibility = View.GONE
+
+                }
+            }
         }
     }
 /*
@@ -136,6 +208,10 @@ class FragmentMoviesList : Fragment() {
         }
     }
      */
+
+    companion object {
+        private const val MIN_TIME_FOR_LOADING: Long = 1
+    }
 }
 
 fun <T> Fragment.collectFlovAndRepeatOnLifeCycle(

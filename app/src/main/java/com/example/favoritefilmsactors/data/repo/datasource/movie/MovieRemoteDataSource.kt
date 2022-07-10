@@ -7,4 +7,5 @@ import retrofit2.Response
 interface MovieRemoteDataSource {
     suspend fun downloadMoviesFromNet(): Response<MovieList>
     suspend fun downloadImagesFromNet(movieId: Int): Response<ImagesList>
+    suspend fun getSearchedMoviesByName(querySearch: String): Response<MovieList>
 }
