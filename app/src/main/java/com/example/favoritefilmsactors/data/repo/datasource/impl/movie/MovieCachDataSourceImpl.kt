@@ -7,16 +7,21 @@ import javax.inject.Inject
 class MovieCachDataSourceImpl @Inject constructor (): MovieCacheDataSource {
 
     companion object{
-        val cacheMovieList = ArrayList<MovieSimple>()
+        val cacheMovieList = mutableListOf<MovieSimple>()
     }
     override suspend fun getMoviesFormCache(): List<MovieSimple> {
         return cacheMovieList
     }
 
     override suspend fun saveMoviesToCache(movies: List<MovieSimple>) {
-        cacheMovieList.apply {
-            this.clear()
-            ArrayList(movies)
+        cacheMovieList.clear()
+        movies.forEach {
+            cacheMovieList.add(it)
         }
+//        cacheMovieList = movies.toMutableList()
+//        cacheMovieList.apply {
+//            this.clear()
+//            ArrayList(movies)
+//        }
     }
 }

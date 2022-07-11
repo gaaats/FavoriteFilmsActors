@@ -7,6 +7,29 @@
     android:background="@color/teal_200"
     tools:context=".FavoriteMoviesFragment">
 
+    <TextView
+        android:id="@+id/tvTableTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Wishlist"
+        android:textSize="25sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imgLitleHearTitle"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="4dp"
+        android:alpha="0.9"
+        android:src="@drawable/ic_baseline_favorite_24"
+        app:layout_constraintBottom_toBottomOf="@id/tvTableTitle"
+        app:layout_constraintStart_toEndOf="@id/tvTableTitle"
+        app:layout_constraintTop_toTopOf="@id/tvTableTitle" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recVievPlaceHolderOnWishlist"
         android:layout_width="0dp"
@@ -15,7 +38,7 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tvTableTitle" />
 
 
     <ImageView

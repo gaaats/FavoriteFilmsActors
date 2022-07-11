@@ -11,9 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.domain.usecase.GetMovImagesUseCase
-import com.example.favoritefilmsactors.domain.usecase.GetMoviesUseCase
-import com.example.favoritefilmsactors.domain.usecase.GetSearchedMoviesByNameUseCase
+import com.example.favoritefilmsactors.domain.usecase.*
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +27,8 @@ class MovieVievModel @Inject constructor(
     private val getMovies: GetMoviesUseCase,
     private val updateMovie: GetMoviesUseCase,
     private val getImages: GetMovImagesUseCase,
+    private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
+    private val getMoviesWishlist: GetMoviesWishlist,
     private val getSearchedMoviesByName: GetSearchedMoviesByNameUseCase
 ) : ViewModel() {
 
@@ -40,12 +40,20 @@ class MovieVievModel @Inject constructor(
     val listMovies: LiveData<List<MovieSimple>>
         get() = _listMovies
 
+    private var _listFavoriteMovies = MutableLiveData<List<MovieSimple>>()
+    val listFavoriteMovies: LiveData<List<MovieSimple>>
+        get() = _listFavoriteMovies
+
 
     private var _loading = MutableLiveData(false)
     val loading: LiveData<Boolean>
         get() = _loading
 
     private lateinit var moviesFlow: StateFlow<List<MovieSimple>>
+
+    suspend fun loadFavoriteMovies() {
+        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+    }
 
     // FOR NORMAL APP
     val getFlovMovies = flow {
@@ -61,21 +69,26 @@ class MovieVievModel @Inject constructor(
         emit(items)
     }
 
+    suspend fun addSingleMovieToWishlist(movie: MovieSimple) {
+        saveSingleMovieToWishlist.execute(movie)
+        Log.d(Constance.TAG, "add to favorite")
+    }
+
     suspend fun searchMovieByName(searcherQuery: String) {
         itIsLoadingNov()
         viewModelScope.launch {
-//            try {
-//                if (isNetAvailable(application)){
-            withContext(Dispatchers.Main) {
-                _listMovies.value = getSearchedMoviesByName.execute(searcherQuery)
-                loadingFinished()
+            try {
+                if (isNetAvailable(application)) {
+                    withContext(Dispatchers.Main) {
+                        _listMovies.value = getSearchedMoviesByName.execute(searcherQuery)
+                        loadingFinished()
+                    }
+                } else {
+                    throw RuntimeException("Internet problem")
+                }
+            } catch (e: Exception) {
+                throw RuntimeException("catch MovieVievModel - searchMovieByName")
             }
-//                } else{
-//                    throw RuntimeException("Internet problem")
-//                }
-//            } catch (e: Exception) {
-//                throw RuntimeException("catch MovieVievModel - searchMovieByName")
-//            }
         }
 
     }
@@ -128,6 +141,9 @@ class MovieVievModel @Inject constructor(
             if (activeNetvorkInfo != null && activeNetvorkInfo.isConnected) return true
         }
         return false
+    }
+    fun makeTestLog(){
+        Log.d(Constance.TAG, "vievmodel is vork")
     }
 /*
     //TEST

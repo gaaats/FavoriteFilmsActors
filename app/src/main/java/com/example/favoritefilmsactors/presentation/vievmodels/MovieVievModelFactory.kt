@@ -3,9 +3,7 @@ package com.example.favoritefilmsactors.presentation.vievmodels
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.favoritefilmsactors.domain.usecase.GetMovImagesUseCase
-import com.example.favoritefilmsactors.domain.usecase.GetMoviesUseCase
-import com.example.favoritefilmsactors.domain.usecase.GetSearchedMoviesByNameUseCase
+import com.example.favoritefilmsactors.domain.usecase.*
 import javax.inject.Inject
 
 class MovieVievModelFactory @Inject constructor(
@@ -13,6 +11,8 @@ class MovieVievModelFactory @Inject constructor(
     private val getMovies: GetMoviesUseCase,
     private val updateMovie: GetMoviesUseCase,
     private val getMovImagesUseCase: GetMovImagesUseCase,
+    private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
+    private val getMoviesWishlist: GetMoviesWishlist,
     private val getSearchedMoviesByName: GetSearchedMoviesByNameUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -21,6 +21,8 @@ class MovieVievModelFactory @Inject constructor(
             getMovies,
             updateMovie,
             getMovImagesUseCase,
+            saveSingleMovieToWishlist,
+            getMoviesWishlist,
             getSearchedMoviesByName
         ) as T
     }

@@ -4,10 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardVievItemWishlist"
     android:layout_width="match_parent"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
     android:layout_height="wrap_content"
     android:background="@color/teal_200"
     android:orientation="horizontal"
-    app:cardCornerRadius="32dp">
+    app:cardCornerRadius="16dp">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/lin_lay_out_Wishlist"
@@ -25,6 +29,7 @@
             <ImageView
                 android:id="@+id/imgOnWishlist"
                 android:scaleType="centerCrop"
+                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/all_movies_icon" />
@@ -47,7 +52,7 @@
 
             <TextView
                 android:id="@+id/tvTitleWishlist"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,8 +66,10 @@
 
             <TextView
                 android:id="@+id/tvDescOnWishlist"
+                android:textSize="10sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:lines="5"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:text="description" />

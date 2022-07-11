@@ -6,17 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import com.example.favoritefilmsactors.R
-import com.example.favoritefilmsactors.data.remote.api.TMDBService
-import com.example.favoritefilmsactors.data.room.TMDbDataBase
 import com.example.favoritefilmsactors.databinding.FragmentMoviesListBinding
 import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
@@ -25,9 +20,6 @@ import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import okhttp3.internal.wait
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -71,6 +63,9 @@ class FragmentMoviesList : Fragment() {
 
         initLoadingPopularMoviesOnMainScreen()
         initProgBar()
+        CoroutineScope(Dispatchers.IO).launch {
+            initFunAddToWishlist()
+        }
         initNavigationForMoreImages()
         createSearchByNameMovie()
 
@@ -145,11 +140,20 @@ class FragmentMoviesList : Fragment() {
     }
 
     private fun initNavigationForMoreImages() {
-        movieAdapter.navigate = {
+        movieAdapter.navigateMoreImages = {
             FragmentMoviesListDirections.actionFragmentMoviesListToPagerFragment(it).also {
                 findNavController().navigate(it)
             }
             Log.d(Constance.TAG, "movieAdapter.navigate")
+        }
+    }
+
+    private suspend fun initFunAddToWishlist() {
+
+        movieAdapter.addToWishlist = {
+            CoroutineScope(Dispatchers.IO).launch {
+                movieVievModel.addSingleMovieToWishlist(it)
+            }
         }
     }
 

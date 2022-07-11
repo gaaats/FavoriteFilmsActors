@@ -19,4 +19,7 @@ interface MoviesDao {
 
     @Query("SELECT * FROM movies_table")
     suspend fun getMovies(): List<MovieItemEntityDB>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addSingleMovieToDB (movie: MovieItemEntityDB)
 }

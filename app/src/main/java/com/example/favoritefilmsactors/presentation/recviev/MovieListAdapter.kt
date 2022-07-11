@@ -4,33 +4,26 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.findFragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ListAdapter
 import coil.load
 import com.example.favoritefilmsactors.R
-import com.example.favoritefilmsactors.data.remote.api.TMDBService
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.presentation.FragmentMoviesList
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
 import com.example.favoritefilmsactors.utils.constance.Constance
-import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
 
-class MovieListAdapter @Inject constructor() :
+class MovieListAdapter @Inject constructor(
+) :
     ListAdapter<MovieSimple, MovieRecVievVievHolder>(MovieDiffUtilListAdapter()) {
 
-    var navigate: ((id: Int) -> Unit)? = null
+    var navigateMoreImages: ((id: Int) -> Unit)? = null
+    var addToWishlist: ((movie: MovieSimple) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieRecVievVievHolder {
         LayoutInflater.from(parent.context).inflate(R.layout.single_item_movie, parent, false)
@@ -58,10 +51,23 @@ class MovieListAdapter @Inject constructor() :
             cardViev.setOnClickListener {
                 navigateToPagerFragment(currentMovie)
             }
+//            imgAddToWishList.setOnClickListener {
+//                Log.d(Constance.TAG, "imgAddToWishList setOnClickListener :${currentMovie.id}")
+//                addToWishlistImpl(currentMovie)
+//            }
+            imgAddToWishList.setOnLongClickListener() {
+                Log.d(Constance.TAG, "imgAddToWishList setOnLongClickListener :${currentMovie.id}")
+                addToWishlistImpl(currentMovie)
+                true
+            }
         }
     }
 
     private fun navigateToPagerFragment(currentMovie: MovieSimple) {
-        navigate?.invoke(currentMovie.id)
+        navigateMoreImages?.invoke(currentMovie.id)
+    }
+
+    private fun addToWishlistImpl(currentMovie: MovieSimple) {
+        addToWishlist?.invoke(currentMovie)
     }
 }

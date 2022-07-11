@@ -79,6 +79,10 @@ class MoviesRepositoryImpl @Inject constructor(
         return listForReturn.toList()
     }
 
+    override suspend fun saveSingleMovieToWishlist(movie: MovieItemEntityDB) {
+        movieLocalDataSource.saveSingleMovieToDB(movie)
+    }
+
 
     suspend fun getMoviesFromAPI(): List<MovieItemNetEntity> {
         Log.d(Constance.TAG, "getMoviesFromAPI")
@@ -99,18 +103,12 @@ class MoviesRepositoryImpl @Inject constructor(
         return movieListItemNetEntity
     }
 
-    suspend fun getMoviesFromDataBase(): List<MovieItemEntityDB> {
-        Log.d(Constance.TAG, "getMoviesFromDataBase")
+    override suspend fun getMoviesFromDataBase(): List<MovieItemEntityDB> {
+        Log.d(Constance.TAG, "getMoviesFromDataBase - Wishlist")
         try {
             movieListItemDBEntity = movieLocalDataSource.getMoviesFromDB()
         } catch (e: Exception) {
             Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromDataBase")
-        }
-        if (movieListItemDBEntity.size <= 0) {
-            movieListItemDBEntity = getMoviesFromAPI().map {
-                it.convertToDBEntity()
-            }
-            movieLocalDataSource.saveMoviesToDB(movieListItemDBEntity)
         }
         return movieListItemDBEntity
     }
@@ -123,9 +121,12 @@ class MoviesRepositoryImpl @Inject constructor(
             Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromCache")
         }
         if (movieListItemSimple.size <= 0) {
-            movieListItemSimple = getMoviesFromDataBase().map {
+            movieListItemSimple = getMoviesFromAPI().map {
                 it.convertToSimpleEntity()
             }
+//            movieListItemSimple = getMoviesFromDataBase().map {
+//                it.convertToSimpleEntity()
+//            }
             movieCacheDataSource.saveMoviesToCache(movieListItemSimple)
         }
         return movieListItemSimple
