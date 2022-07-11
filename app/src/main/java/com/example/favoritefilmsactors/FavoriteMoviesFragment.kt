@@ -1,5 +1,6 @@
 package com.example.favoritefilmsactors
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -7,14 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.favoritefilmsactors.databinding.FragmentFavoriteMoviesBinding
-import com.example.favoritefilmsactors.databinding.FragmentMoviesListBinding
-import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.recviev.MovieWishListAdapter
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,13 +53,37 @@ class FavoriteMoviesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         initAdapterAndLoadMoviesWishlist()
+        createMethodSwipeAndDelete()
+
+//        checkListEmptyOrNotMakeVisible()
 
         super.onViewCreated(view, savedInstanceState)
     }
 
+    private fun checkListEmptyOrNotMakeVisible() {
+        movieVievModel.wishlistIsEmptyOrNull.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.recVievPlaceHolderOnWishlist.visibility = View.GONE
+                binding.textViewNoFavMovies.visibility = View.VISIBLE
+                binding.imgNoFavoritesMovies.visibility = View.VISIBLE
+            } else {
+                binding.recVievPlaceHolderOnWishlist.visibility = View.VISIBLE
+                binding.textViewNoFavMovies.visibility = View.GONE
+                binding.imgNoFavoritesMovies.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
+
     private fun initAdapterAndLoadMoviesWishlist() {
+        initProgBar()
         lifecycleScope.launch {
             movieVievModel.loadFavoriteMovies()
+            checkListEmptyOrNotMakeVisible()
         }
         binding.recVievPlaceHolderOnWishlist.adapter = movieWishListAdapter
         movieVievModel.listFavoriteMovies.observe(viewLifecycleOwner) {
@@ -65,9 +91,65 @@ class FavoriteMoviesFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        _binding = null
-        super.onDestroy()
+
+    private fun createMethodSwipeAndDelete() {
+        val callBack = object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val itemSwiped = movieWishListAdapter.currentList[viewHolder.adapterPosition]
+                AlertDialog.Builder(activity)
+                    .setTitle("DELETE MOVIE FROM WISHLIST")
+                    .setMessage("are ypu sure want to delete movie from WISHLIST?")
+                    .setPositiveButton("yes") { _, _ ->
+                        CoroutineScope(Dispatchers.IO).async {
+                            movieVievModel.deleteSingleMovieFromWishlist(itemSwiped.id)
+                            delay(100)
+                            movieVievModel.loadForTakeChanges()
+                            withContext(Dispatchers.Main){
+                                Snackbar.make(this@FavoriteMoviesFragment.view!!, "movie DELETED", Snackbar.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    .setNegativeButton("no") { _, i ->
+                        CoroutineScope(Dispatchers.IO).launch {
+                            movieVievModel.fakeDeleteOfItem(itemSwiped)
+                        }
+                        movieWishListAdapter.notifyDataSetChanged()
+                    }
+                    .setCancelable(true)
+                    .create()
+                    .show()
+            }
+        }
+        ItemTouchHelper(callBack).apply {
+            attachToRecyclerView(binding.recVievPlaceHolderOnWishlist)
+        }
+    }
+
+    private fun initProgBar() {
+        movieVievModel.loading.observe(viewLifecycleOwner) {
+            binding.apply {
+                if (it) {
+                    recVievPlaceHolderOnWishlist.visibility = View.INVISIBLE
+                    textViewNoFavMovies.visibility = View.INVISIBLE
+                    imgNoFavoritesMovies.visibility = View.INVISIBLE
+                    progBarFav.visibility = View.VISIBLE
+                } else {
+                    recVievPlaceHolderOnWishlist.visibility = View.VISIBLE
+                    textViewNoFavMovies.visibility = View.VISIBLE
+                    imgNoFavoritesMovies.visibility = View.VISIBLE
+                    progBarFav.visibility = View.INVISIBLE
+                }
+            }
+        }
     }
 /*
     companion object {

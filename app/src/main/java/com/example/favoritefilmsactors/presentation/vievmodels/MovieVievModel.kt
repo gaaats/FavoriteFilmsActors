@@ -1,10 +1,12 @@
 package com.example.favoritefilmsactors.presentation.vievmodels
 
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,11 +16,8 @@ import com.example.favoritefilmsactors.domain.entity.MovieSimple
 import com.example.favoritefilmsactors.domain.usecase.*
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,8 +28,13 @@ class MovieVievModel @Inject constructor(
     private val getImages: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
+    private val deleteSingleMovieFromWishlist: DeleteSingleMovieFromWishlist,
     private val getSearchedMoviesByName: GetSearchedMoviesByNameUseCase
 ) : ViewModel() {
+
+    private val _statusMessage = MutableLiveData<EventVraper<String>>()
+    val statusMessage: LiveData<EventVraper<String>>
+        get() = _statusMessage
 
     private var _listImages = MutableLiveData<List<ImagesItem>>()
     val listImages: LiveData<List<ImagesItem>>
@@ -49,10 +53,42 @@ class MovieVievModel @Inject constructor(
     val loading: LiveData<Boolean>
         get() = _loading
 
+    private var _wishlistIsEmptyOrNull = MutableLiveData<Boolean>()
+    val wishlistIsEmptyOrNull: LiveData<Boolean>
+        get() = _wishlistIsEmptyOrNull
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+        }
+        chechWishlistNullOrEmpty()
+    }
+    suspend fun loadForTakeChanges(){
+        CoroutineScope(Dispatchers.IO).launch {
+            _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+        }
+    }
+
     private lateinit var moviesFlow: StateFlow<List<MovieSimple>>
 
+    suspend fun deleteSingleMovieFromWishlist(movieId: Int) {
+        deleteSingleMovieFromWishlist.execute(movieId)
+//        _statusMessage.postValue(EventVraper("movie DELETED"))
+        chechWishlistNullOrEmpty()
+    }
+
     suspend fun loadFavoriteMovies() {
+        itIsLoadingNov()
+        delay(1000)
         _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+        chechWishlistNullOrEmpty()
+        loadingFinished()
+
+    }
+
+    private fun chechWishlistNullOrEmpty() {
+        if (listFavoriteMovies.value.isNullOrEmpty()) _wishlistIsEmptyOrNull.postValue(true)
+        else _wishlistIsEmptyOrNull.postValue(false)
     }
 
     // FOR NORMAL APP
@@ -70,8 +106,18 @@ class MovieVievModel @Inject constructor(
     }
 
     suspend fun addSingleMovieToWishlist(movie: MovieSimple) {
+//        val oldList = listOf(listFavoriteMovies.value)
         saveSingleMovieToWishlist.execute(movie)
-        Log.d(Constance.TAG, "add to favorite")
+//        if (oldList != listFavoriteMovies.value){
+//            _statusMessage.postValue(EventVraper("movie successfully add to Wishlist"))
+//        }
+//        Log.d(Constance.TAG, "add to favorite")
+    }
+
+    suspend fun fakeDeleteOfItem(movie: MovieSimple){
+        deleteSingleMovieFromWishlist.execute(movie.id)
+        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+        saveSingleMovieToWishlist.execute(movie)
     }
 
     suspend fun searchMovieByName(searcherQuery: String) {
@@ -142,7 +188,8 @@ class MovieVievModel @Inject constructor(
         }
         return false
     }
-    fun makeTestLog(){
+
+    fun makeTestLog() {
         Log.d(Constance.TAG, "vievmodel is vork")
     }
 /*

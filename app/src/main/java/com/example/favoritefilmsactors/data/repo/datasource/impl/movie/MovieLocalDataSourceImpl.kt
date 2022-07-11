@@ -27,6 +27,12 @@ class MovieLocalDataSourceImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteSingleMovieFromDB(movieId: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            moviesDao.deleteMovieFromDB(movieId)
+        }
+    }
+
     override suspend fun deleteAllMoviesFromDB() {
         CoroutineScope(Dispatchers.IO).launch {
             moviesDao.deleteAllMovies()

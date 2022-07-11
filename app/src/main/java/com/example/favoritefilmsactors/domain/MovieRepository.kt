@@ -14,4 +14,5 @@ interface MovieRepository {
     suspend fun getListOfImages(imageId:Int):List<ImagesItem>
     suspend fun saveSingleMovieToWishlist(movie: MovieItemEntityDB)
     suspend fun getMoviesFromDataBase(): List<MovieItemEntityDB>
+    suspend fun deleteSingleMovieFromWishlist(movieId: Int)
 }

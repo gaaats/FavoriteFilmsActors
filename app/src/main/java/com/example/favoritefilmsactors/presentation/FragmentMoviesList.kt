@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.get
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
 import com.example.favoritefilmsactors.utils.constance.Constance
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +35,16 @@ class FragmentMoviesList : Fragment() {
     val movieVievModel by lazy {
         ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
     }
+
+//    private val initFunAddtoFav by lazy {
+//        movieAdapter.navigateMoreImages = {
+//            FragmentMoviesListDirections.actionFragmentMoviesListToPagerFragment(it).also {
+//                findNavController().navigate(it)
+//            }
+//            Log.d(Constance.TAG, "movieAdapter.navigate")
+//        }
+//        10
+//    }
 
     private var _binding: FragmentMoviesListBinding? = null
     private val binding
@@ -63,11 +75,17 @@ class FragmentMoviesList : Fragment() {
 
         initLoadingPopularMoviesOnMainScreen()
         initProgBar()
+
+//        initFunAddtoFav
         CoroutineScope(Dispatchers.IO).launch {
             initFunAddToWishlist()
         }
         initNavigationForMoreImages()
         createSearchByNameMovie()
+
+        movieVievModel.statusMessage.observe(viewLifecycleOwner){
+            Snackbar.make(this.view!!, it.peekContent(), Snackbar.LENGTH_SHORT).show()
+        }
 
         /*
 //        binding.searchViev.setOnClickListener {
@@ -126,7 +144,7 @@ class FragmentMoviesList : Fragment() {
     private fun initSearchInsideSearchViev(query: String?, needDelay: Boolean = false) {
         binding.recVievPlaceHolder.alpha = 0.1F
         CoroutineScope(Dispatchers.IO).launch {
-            if (needDelay) delay(3000)
+            if (needDelay) delay(2000)
             binding.recVievPlaceHolder.alpha = 1F
             if (query?.isNotEmpty() == true && query.isNotBlank()) {
                 movieVievModel.searchMovieByName(query)
@@ -149,7 +167,6 @@ class FragmentMoviesList : Fragment() {
     }
 
     private suspend fun initFunAddToWishlist() {
-
         movieAdapter.addToWishlist = {
             CoroutineScope(Dispatchers.IO).launch {
                 movieVievModel.addSingleMovieToWishlist(it)
@@ -215,6 +232,8 @@ class FragmentMoviesList : Fragment() {
 
     companion object {
         private const val MIN_TIME_FOR_LOADING: Long = 1
+
+
     }
 }
 

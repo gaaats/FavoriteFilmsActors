@@ -1,9 +1,7 @@
 package com.example.favoritefilmsactors.data.repo
 
 import android.util.Log
-import com.example.favoritefilmsactors.utils.constance.Constance
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieItemNetEntity
-import com.example.favoritefilmsactors.data.remote.models.movie.images.ImagesList
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieCacheDataSource
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieLocalDataSource
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieRemoteDataSource
@@ -11,7 +9,7 @@ import com.example.favoritefilmsactors.data.room.entity.MovieItemEntityDB
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.MovieRepository
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import kotlinx.coroutines.coroutineScope
+import com.example.favoritefilmsactors.utils.constance.Constance
 import javax.inject.Inject
 
 class MoviesRepositoryImpl @Inject constructor(
@@ -113,6 +111,10 @@ class MoviesRepositoryImpl @Inject constructor(
         return movieListItemDBEntity
     }
 
+    override suspend fun deleteSingleMovieFromWishlist(movieId: Int) {
+        movieLocalDataSource.deleteSingleMovieFromDB(movieId)
+    }
+
     suspend fun getMoviesFromCache(): List<MovieSimple> {
         Log.d(Constance.TAG, "getMoviesFromCache")
         try {
@@ -124,6 +126,7 @@ class MoviesRepositoryImpl @Inject constructor(
             movieListItemSimple = getMoviesFromAPI().map {
                 it.convertToSimpleEntity()
             }
+
 //            movieListItemSimple = getMoviesFromDataBase().map {
 //                it.convertToSimpleEntity()
 //            }

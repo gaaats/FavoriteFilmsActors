@@ -4,14 +4,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ListAdapter
 import coil.load
 import com.example.favoritefilmsactors.R
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
-import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
 import com.example.favoritefilmsactors.utils.constance.Constance
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,6 +38,7 @@ class MovieListAdapter @Inject constructor(
         val currentMovie = getItem(position)
         val currentUriImg = Constance.BASE_PATH_IMAGE + currentMovie.posterPath
         holder.binding.apply {
+            imgAddToWishList.setImageResource(R.drawable.empty_heart_fav)
             tvTitle.text = currentMovie.title ?: "default"
             tvDescription.text = currentMovie.overview
             tvMark.text = currentMovie.releaseDate
@@ -58,6 +57,7 @@ class MovieListAdapter @Inject constructor(
             imgAddToWishList.setOnLongClickListener() {
                 Log.d(Constance.TAG, "imgAddToWishList setOnLongClickListener :${currentMovie.id}")
                 addToWishlistImpl(currentMovie)
+                Snackbar.make(it, "movie successfully add to Wishlist", Snackbar.LENGTH_SHORT).show()
                 true
             }
         }

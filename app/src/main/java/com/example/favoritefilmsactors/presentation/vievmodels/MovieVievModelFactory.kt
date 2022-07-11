@@ -13,6 +13,7 @@ class MovieVievModelFactory @Inject constructor(
     private val getMovImagesUseCase: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
+    private val deleteSingleMovieFromWishlist: DeleteSingleMovieFromWishlist,
     private val getSearchedMoviesByName: GetSearchedMoviesByNameUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -23,6 +24,7 @@ class MovieVievModelFactory @Inject constructor(
             getMovImagesUseCase,
             saveSingleMovieToWishlist,
             getMoviesWishlist,
+            deleteSingleMovieFromWishlist,
             getSearchedMoviesByName
         ) as T
     }

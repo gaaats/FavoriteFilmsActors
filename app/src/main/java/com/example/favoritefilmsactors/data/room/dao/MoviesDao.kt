@@ -22,4 +22,7 @@ interface MoviesDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addSingleMovieToDB (movie: MovieItemEntityDB)
+
+    @Query("DELETE FROM movies_table WHERE id=:movieId")
+    suspend fun deleteMovieFromDB (movieId: Int)
 }
