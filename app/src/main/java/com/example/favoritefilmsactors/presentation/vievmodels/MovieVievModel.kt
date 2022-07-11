@@ -11,9 +11,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
 import com.example.favoritefilmsactors.domain.usecase.*
+import com.example.favoritefilmsactors.presentation.paging.MoviesListPagingSource
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -91,14 +95,37 @@ class MovieVievModel @Inject constructor(
         else _wishlistIsEmptyOrNull.postValue(false)
     }
 
+    //TESTING PAGING
+
+    val getFlovMovies = Pager(
+        // Configure how data is loaded by passing additional properties to
+        // PagingConfig, such as prefetchDistance.
+        PagingConfig(
+            pageSize = Constance.PAGE_SIZE,
+            prefetchDistance = Constance.PREFETCH_DISTANCE,
+            enablePlaceholders = false
+        )
+    ) {
+        viewModelScope.launch {
+            itIsLoadingNov()
+            delay(1000)
+            loadingFinished()
+        }
+        MoviesListPagingSource(getMovies)
+    }.flow
+        .cachedIn(viewModelScope)
+
+    /*
     // FOR NORMAL APP
     val getFlovMovies = flow {
         itIsLoadingNov()
         delay(1000)
-        val items = getMovies.invoke() ?: throw RuntimeException("getFlovMovies is null")
+        val items = getMovies.invoke(2) ?: throw RuntimeException("getFlovMovies is null")
         emit(items)
         loadingFinished()
     }
+
+     */
 
     val updateFlovMovies = flow {
         val items = updateMovie.invoke() ?: throw RuntimeException("updateFlovMovies is null")
@@ -116,7 +143,7 @@ class MovieVievModel @Inject constructor(
 
     suspend fun fakeDeleteOfItem(movie: MovieSimple){
         deleteSingleMovieFromWishlist.execute(movie.id)
-        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+//        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
         saveSingleMovieToWishlist.execute(movie)
     }
 
@@ -154,12 +181,6 @@ class MovieVievModel @Inject constructor(
     suspend fun loadImagesList(imageId: Int) {
         withContext(Dispatchers.Main) {
             _listImages.value = getImages.invoke(imageId)
-        }
-    }
-
-    fun checkInside() {
-        for (element in listImages.value!!) {
-            Log.d(Constance.TAG, "inside livedata: ${element.filePath}")
         }
     }
 

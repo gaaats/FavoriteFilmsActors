@@ -23,8 +23,12 @@ class MoviesRepositoryImpl @Inject constructor(
     lateinit var movieListItemSimple: List<MovieSimple>
 
 
-    override suspend fun getMovies(): List<MovieSimple> {
-        return getMoviesFromCache()
+    override suspend fun getMovies(pageIndex:Int): List<MovieSimple> {
+        return getMoviesFromAPI(pageIndex).map {
+            it.convertToSimpleEntity()
+        }
+
+//        return getMoviesFromCache(pageIndex)
     }
 
     override suspend fun getSearchedMoviesByNameUseCase(query: String): List<MovieSimple> {
@@ -39,9 +43,8 @@ class MoviesRepositoryImpl @Inject constructor(
 //        }
     }
 
-
     override suspend fun updateMovies(): List<MovieItemNetEntity>? {
-        val nevUpdatedList = getMoviesFromAPI()
+        val nevUpdatedList = getMoviesFromAPI(pageIndex = 1)
         movieLocalDataSource.deleteAllMoviesFromDB()
         movieLocalDataSource.saveMoviesToDB(nevUpdatedList.map {
             it.convertToDBEntity()
@@ -82,9 +85,9 @@ class MoviesRepositoryImpl @Inject constructor(
     }
 
 
-    suspend fun getMoviesFromAPI(): List<MovieItemNetEntity> {
+    suspend fun getMoviesFromAPI(pageIndex: Int): List<MovieItemNetEntity> {
         Log.d(Constance.TAG, "getMoviesFromAPI")
-        val response = movieRemoteDataSource.downloadMoviesFromNet()
+        val response = movieRemoteDataSource.downloadMoviesFromNet(pageIndex)
         if (response.isSuccessful) {
             Log.d(Constance.TAG, "good")
         }
@@ -115,7 +118,7 @@ class MoviesRepositoryImpl @Inject constructor(
         movieLocalDataSource.deleteSingleMovieFromDB(movieId)
     }
 
-    suspend fun getMoviesFromCache(): List<MovieSimple> {
+    suspend fun getMoviesFromCache(pageIndex: Int): List<MovieSimple> {
         Log.d(Constance.TAG, "getMoviesFromCache")
         try {
             movieListItemSimple = movieCacheDataSource.getMoviesFormCache()
@@ -123,7 +126,7 @@ class MoviesRepositoryImpl @Inject constructor(
             Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromCache")
         }
         if (movieListItemSimple.size <= 0) {
-            movieListItemSimple = getMoviesFromAPI().map {
+            movieListItemSimple = getMoviesFromAPI(pageIndex).map {
                 it.convertToSimpleEntity()
             }
 

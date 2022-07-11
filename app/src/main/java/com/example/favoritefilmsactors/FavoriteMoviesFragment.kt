@@ -108,18 +108,18 @@ class FavoriteMoviesFragment : Fragment() {
                 AlertDialog.Builder(activity)
                     .setTitle("DELETE MOVIE FROM WISHLIST")
                     .setMessage("are ypu sure want to delete movie from WISHLIST?")
-                    .setPositiveButton("yes") { _, _ ->
-                        CoroutineScope(Dispatchers.IO).async {
+                    .setPositiveButton("yes") { dialog, i ->
+                        lifecycleScope.async {
                             movieVievModel.deleteSingleMovieFromWishlist(itemSwiped.id)
-                            delay(100)
+                            delay(400)
                             movieVievModel.loadForTakeChanges()
                             withContext(Dispatchers.Main){
                                 Snackbar.make(this@FavoriteMoviesFragment.view!!, "movie DELETED", Snackbar.LENGTH_SHORT).show()
                             }
                         }
                     }
-                    .setNegativeButton("no") { _, i ->
-                        CoroutineScope(Dispatchers.IO).launch {
+                    .setNegativeButton("no") { dialog, i ->
+                        lifecycleScope.launch {
                             movieVievModel.fakeDeleteOfItem(itemSwiped)
                         }
                         movieWishListAdapter.notifyDataSetChanged()

@@ -18,7 +18,10 @@ interface TMDBService {
     }
 
     @GET("movie/popular")
-    suspend fun getPopularMovies(@Query("api_key") apiKey: String = BuildConfig.API_KEY): Response<MovieList>
+    suspend fun getPopularMovies(
+        @Query("api_key") apiKey: String = BuildConfig.API_KEY,
+        @Query("page") page: Int,
+    ): Response<MovieList>
 
     @GET("movie/{movie_id}/images")
     suspend fun getMoviesImages(

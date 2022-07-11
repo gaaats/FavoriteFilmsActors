@@ -12,8 +12,8 @@ class MovieRemoteDataSourceImpl @Inject constructor(
     // TRY TO ADD HERE  private val apiKey: String
 
     ): MovieRemoteDataSource {
-    override suspend fun downloadMoviesFromNet(): Response<MovieList> {
-        return apiService.getPopularMovies()
+    override suspend fun downloadMoviesFromNet(pageIndex:Int): Response<MovieList> {
+        return apiService.getPopularMovies(page = pageIndex)
     }
 
     override suspend fun downloadImagesFromNet(movieId:Int): Response<ImagesList> {

@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.PagingData
 import com.example.favoritefilmsactors.databinding.FragmentMoviesListBinding
 import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
@@ -63,7 +64,6 @@ class FragmentMoviesList : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.recVievPlaceHolder.adapter = movieAdapter
 
 /*
         val retrofit = Retrofit.Builder()
@@ -112,8 +112,11 @@ class FragmentMoviesList : Fragment() {
     }
 
     private fun initLoadingPopularMoviesOnMainScreen() {
+        binding.recVievPlaceHolder.adapter = movieAdapter
         collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
-            movieAdapter.submitList(it)
+            movieAdapter.submitData(it)
+            // todo add exopy IMPL
+//            movieAdapter.submitList(it)
         }
     }
 
@@ -142,19 +145,20 @@ class FragmentMoviesList : Fragment() {
     }
 
     private fun initSearchInsideSearchViev(query: String?, needDelay: Boolean = false) {
-        binding.recVievPlaceHolder.alpha = 0.1F
-        CoroutineScope(Dispatchers.IO).launch {
-            if (needDelay) delay(2000)
-            binding.recVievPlaceHolder.alpha = 1F
-            if (query?.isNotEmpty() == true && query.isNotBlank()) {
-                movieVievModel.searchMovieByName(query)
-                withContext(Dispatchers.Main) {
-                    movieVievModel.listMovies.observe(viewLifecycleOwner) {
-                        movieAdapter.submitList(it)
-                    }
-                }
-            }
-        }
+        // todo make after paging
+//        binding.recVievPlaceHolder.alpha = 0.1F
+//        CoroutineScope(Dispatchers.IO).launch {
+//            if (needDelay) delay(2000)
+//            binding.recVievPlaceHolder.alpha = 1F
+//            if (query?.isNotEmpty() == true && query.isNotBlank()) {
+//                movieVievModel.searchMovieByName(query)
+//                withContext(Dispatchers.Main) {
+//                    movieVievModel.listMovies.observe(viewLifecycleOwner) {
+//                        movieAdapter.submitList(it)
+//                    }
+//                }
+//            }
+//        }
     }
 
     private fun initNavigationForMoreImages() {

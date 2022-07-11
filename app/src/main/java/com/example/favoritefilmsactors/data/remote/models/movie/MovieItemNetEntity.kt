@@ -24,9 +24,9 @@ data class MovieItemNetEntity(
 
     fun convertToSimpleEntity() = MovieSimple(
         id,
-        overview ?: throw RuntimeException("null in MovieItemNetEntity"),
+        overview ?: "no description...",
         posterPath ?: "poster default",
-        releaseDate ?: "releaseDate default",
+        releaseDate ?: "xx-xx-xxxx",
         title
     )
 

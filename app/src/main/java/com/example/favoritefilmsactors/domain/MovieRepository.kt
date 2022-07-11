@@ -8,7 +8,7 @@ import com.example.favoritefilmsactors.domain.entity.MovieSimple
 
 interface MovieRepository {
 
-    suspend fun getMovies(): List<MovieSimple>?
+    suspend fun getMovies(pageIndex:Int): List<MovieSimple>?
     suspend fun getSearchedMoviesByNameUseCase(query:String): List<MovieSimple>?
     suspend fun updateMovies():List<MovieItemNetEntity>?
     suspend fun getListOfImages(imageId:Int):List<ImagesItem>
