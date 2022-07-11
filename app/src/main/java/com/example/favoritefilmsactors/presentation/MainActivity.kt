@@ -2,6 +2,8 @@ package com.example.favoritefilmsactors.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.example.favoritefilmsactors.R
 import com.example.favoritefilmsactors.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +18,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        navHostFragment.navController.also {
+            binding.bottomNav.setupWithNavController(it)
+        }
+
 
 
     }

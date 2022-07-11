@@ -1,3 +1,0 @@
-package com.example.favoritefilmsactors.presentation.recviev
-
-class NavigationRepoImpl
