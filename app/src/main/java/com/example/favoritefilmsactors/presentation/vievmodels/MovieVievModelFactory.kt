@@ -9,7 +9,6 @@ import javax.inject.Inject
 class MovieVievModelFactory @Inject constructor(
     private val application: Application,
     private val getMovies: GetMoviesUseCase,
-    private val updateMovie: GetMoviesUseCase,
     private val getMovImagesUseCase: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
@@ -20,7 +19,6 @@ class MovieVievModelFactory @Inject constructor(
         return MovieVievModel(
             application,
             getMovies,
-            updateMovie,
             getMovImagesUseCase,
             saveSingleMovieToWishlist,
             getMoviesWishlist,

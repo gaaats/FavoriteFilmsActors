@@ -15,10 +15,12 @@ class MoviesListPagingSource @Inject constructor(
         val previousPageIndex = if (pageIndex == 1) null else pageIndex - 1
 
         val resultOfLoad = getMovies.invoke(pageIndex)
-
+        resultOfLoad.exception?.let {
+            return LoadResult.Error(it)
+        }
 
         return LoadResult.Page(
-            data = resultOfLoad!!,
+            data = resultOfLoad!!.data!!,
             prevKey = previousPageIndex,
             nextKey = pageIndex + 1
         )

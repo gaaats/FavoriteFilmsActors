@@ -9,6 +9,8 @@ import com.example.favoritefilmsactors.data.room.entity.MovieItemEntityDB
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.MovieRepository
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
+import com.example.favoritefilmsactors.presentation.vievmodels.ResourceVrap
+import com.example.favoritefilmsactors.utils.CustomMovieException
 import com.example.favoritefilmsactors.utils.constance.Constance
 import javax.inject.Inject
 
@@ -23,10 +25,28 @@ class MoviesRepositoryImpl @Inject constructor(
     lateinit var movieListItemSimple: List<MovieSimple>
 
 
-    override suspend fun getMovies(pageIndex:Int): List<MovieSimple> {
-        return getMoviesFromAPI(pageIndex).map {
-            it.convertToSimpleEntity()
+    override suspend fun getMovies(pageIndex: Int): ResourceVrap<List<MovieSimple>> {
+
+        val response = movieRemoteDataSource.downloadMoviesFromNet(pageIndex)
+        try {
+            if (response.isSuccessful && response.body() != null) {
+                Log.d(Constance.TAG, "good")
+                return ResourceVrap.Success(response.body()!!.movies.map {
+                    it.convertToSimpleEntity()
+                })
+            }
+            return ResourceVrap.Error(
+                exception = CustomMovieException(
+                    response.code().toString() + " " + response.errorBody().toString()
+                )
+            )
+        } catch (e: Exception) {
+            return ResourceVrap.Error(CustomMovieException(errorMessage = e.message.toString()))
         }
+
+
+//        val preResult = getMoviesFromAPI(pageIndex)
+//        if ()
 
 //        return getMoviesFromCache(pageIndex)
     }
@@ -34,28 +54,29 @@ class MoviesRepositoryImpl @Inject constructor(
     override suspend fun getSearchedMoviesByNameUseCase(query: String): List<MovieSimple> {
         val result = movieRemoteDataSource.getSearchedMoviesByName(query)
 //        if (result.isSuccessful){
-            return result.body()?.movies?.map {
-                it.convertToSimpleEntity()
-            }
-                ?:throw RuntimeException("error or NULL in MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
+        return result.body()?.movies?.map {
+            it.convertToSimpleEntity()
+        }
+            ?: throw RuntimeException("error or NULL in MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
 //        } else {
 //            throw RuntimeException("loading failed MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
 //        }
     }
 
-    override suspend fun updateMovies(): List<MovieItemNetEntity>? {
-        val nevUpdatedList = getMoviesFromAPI(pageIndex = 1)
-        movieLocalDataSource.deleteAllMoviesFromDB()
-        movieLocalDataSource.saveMoviesToDB(nevUpdatedList.map {
-            it.convertToDBEntity()
-        })
-        // NEED to make fun convert from all classes or make separate class
-
-        movieCacheDataSource.saveMoviesToCache(nevUpdatedList.map {
-            it.convertToDBEntity().convertToSimpleEntity()
-        })
-        return nevUpdatedList
-    }
+//    override suspend fun updateMovies(): List<MovieItemNetEntity>? {
+//        return null
+//        val nevUpdatedList = getMoviesFromAPI(pageIndex = 1)
+//        movieLocalDataSource.deleteAllMoviesFromDB()
+//        movieLocalDataSource.saveMoviesToDB(nevUpdatedList.map {
+//            it.convertToDBEntity()
+//        })
+//        // NEED to make fun convert from all classes or make separate class
+//
+//        movieCacheDataSource.saveMoviesToCache(nevUpdatedList.map {
+//            it.convertToDBEntity().convertToSimpleEntity()
+//        })
+//        return nevUpdatedList
+//    }
 
     override suspend fun getListOfImages(imageId: Int): List<ImagesItem> {
         // make normal
@@ -65,10 +86,10 @@ class MoviesRepositoryImpl @Inject constructor(
         if (result.isSuccessful) {
             Log.d(Constance.TAG, "good load images")
             val prepare = result.body()?.posters!!
-            for (elemnt in prepare){
+            for (elemnt in prepare) {
                 Log.d(Constance.TAG, "getListOfImages: ${elemnt.filePath}")
-                if (prepare.indexOf(elemnt) %5 == 0){
-                    ImagesItem(filePath = Constance.BASE_PATH_IMAGE+elemnt.filePath).also {
+                if (prepare.indexOf(elemnt) % 5 == 0) {
+                    ImagesItem(filePath = Constance.BASE_PATH_IMAGE + elemnt.filePath).also {
                         if (listForReturn.size <= MAX_SIZE_IMAGE_LIST) {
                             // add just 4 elements
                             listForReturn.add(it)
@@ -85,13 +106,19 @@ class MoviesRepositoryImpl @Inject constructor(
     }
 
 
-    suspend fun getMoviesFromAPI(pageIndex: Int): List<MovieItemNetEntity> {
-        Log.d(Constance.TAG, "getMoviesFromAPI")
-        val response = movieRemoteDataSource.downloadMoviesFromNet(pageIndex)
-        if (response.isSuccessful) {
-            Log.d(Constance.TAG, "good")
-        }
-        movieListItemNetEntity = response.body()!!.movies
+//    suspend fun getMoviesFromAPI(pageIndex: Int): ResourceVrap<List<MovieItemNetEntity>> {
+//        Log.d(Constance.TAG, "getMoviesFromAPI")
+//        val response = movieRemoteDataSource.downloadMoviesFromNet(pageIndex)
+//        try {
+//            if (response.isSuccessful && response.body() != null) {
+//                Log.d(Constance.TAG, "good")
+//                return ResourceVrap.Success(response.body()!!.movies)
+//            }
+//            return ResourceVrap.Error(CustomMovieException(response.code().toString() + response.errorBody().toString()))
+//        } catch (e: Exception) {
+//            return ResourceVrap.Error(CustomMovieException(e.message!!))
+//        }
+//        movieListItemNetEntity = response.body()!!.movies
 //        try {
 //            val response = movieRemoteDataSource.downloadMoviesFromNet()
 ////            if (response.isSuccessful){
@@ -101,8 +128,8 @@ class MoviesRepositoryImpl @Inject constructor(
 //        catch (e:Exception){
 //            Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromAPI")
 //        }
-        return movieListItemNetEntity
-    }
+//        return movieListItemNetEntity
+//    }
 
     override suspend fun getMoviesFromDataBase(): List<MovieItemEntityDB> {
         Log.d(Constance.TAG, "getMoviesFromDataBase - Wishlist")
@@ -125,19 +152,20 @@ class MoviesRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.d(Constance.TAG, "there is error in MoviesRepositoryImpl -- getMoviesFromCache")
         }
-        if (movieListItemSimple.size <= 0) {
-            movieListItemSimple = getMoviesFromAPI(pageIndex).map {
-                it.convertToSimpleEntity()
-            }
+        //  todo
+//        if (movieListItemSimple.size <= 0) {
+//            movieListItemSimple = getMoviesFromAPI(pageIndex).map {
+//                it.convertToSimpleEntity()
+//            }
 
 //            movieListItemSimple = getMoviesFromDataBase().map {
 //                it.convertToSimpleEntity()
 //            }
-            movieCacheDataSource.saveMoviesToCache(movieListItemSimple)
-        }
+        movieCacheDataSource.saveMoviesToCache(movieListItemSimple)
         return movieListItemSimple
     }
-    companion object{
+
+    companion object {
         private const val MAX_SIZE_IMAGE_LIST = 4
     }
 }

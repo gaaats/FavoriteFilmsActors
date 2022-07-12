@@ -28,7 +28,6 @@ import javax.inject.Inject
 class MovieVievModel @Inject constructor(
     private val application: Application,
     private val getMovies: GetMoviesUseCase,
-    private val updateMovie: GetMoviesUseCase,
     private val getImages: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
@@ -127,10 +126,11 @@ class MovieVievModel @Inject constructor(
 
      */
 
-    val updateFlovMovies = flow {
-        val items = updateMovie.invoke() ?: throw RuntimeException("updateFlovMovies is null")
-        emit(items)
-    }
+    // todo do not need
+//    val updateFlovMovies = flow {
+//        val items = updateMovie.invoke() ?: throw RuntimeException("updateFlovMovies is null")
+//        emit(items)
+//    }
 
     suspend fun addSingleMovieToWishlist(movie: MovieSimple) {
 //        val oldList = listOf(listFavoriteMovies.value)
