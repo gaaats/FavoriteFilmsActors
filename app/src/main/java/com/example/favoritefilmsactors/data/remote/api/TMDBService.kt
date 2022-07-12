@@ -35,6 +35,7 @@ interface TMDBService {
         @Query("api_key") apiKey: String = BuildConfig.API_KEY,
         @Query("language") language: String = "en",
         @Query("query") query: String,
+        @Query("page") page: Int
     ): Response<MovieList>
 
     @GET("tv/popular")

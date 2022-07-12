@@ -7,9 +7,9 @@ import com.example.favoritefilmsactors.utils.ResourceVrap
 
 interface MovieRepository {
 
-    suspend fun getMovies(pageIndex:Int): ResourceVrap<List<MovieSimple>>
-    suspend fun getSearchedMoviesByNameUseCase(query:String): List<MovieSimple>?
-    suspend fun getListOfImages(imageId:Int):List<ImagesItem>
+    suspend fun getMovies(pageIndex: Int): ResourceVrap<List<MovieSimple>>
+    suspend fun getSearchedMoviesByNameUseCase(query:String, pageIndex: Int): ResourceVrap<List<MovieSimple>>
+    suspend fun getListOfImages(imageId: Int): ResourceVrap<List<ImagesItem>>
     suspend fun saveSingleMovieToWishlist(movie: MovieItemEntityDB)
     suspend fun getMoviesFromDataBase(): List<MovieItemEntityDB>
     suspend fun deleteSingleMovieFromWishlist(movieId: Int)

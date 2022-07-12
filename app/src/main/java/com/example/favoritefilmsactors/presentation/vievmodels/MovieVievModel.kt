@@ -7,13 +7,11 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.liveData
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
 import com.example.favoritefilmsactors.domain.usecase.*
@@ -27,13 +25,19 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieVievModel @Inject constructor(
     private val application: Application,
-    private val getMovies: GetMoviesUseCase,
+    private val getMovies: SearchMovieParentUseCase.GetMoviesUseCase,
     private val getImages: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
     private val deleteSingleMovieFromWishlist: DeleteSingleMovieFromWishlist,
-    private val getSearchedMoviesByName: GetSearchedMoviesByNameUseCase
+    private val getSearchedMoviesByName: SearchMovieParentUseCase.GetSearchedMoviesByNameUseCase
 ) : ViewModel() {
+
+    var tempQuery = "empty"
+
+    val moviesListPagingSourcePopularSearch = MoviesListPagingSource(getMovies, "empty")
+    val moviesListPagingSourceSearchByName =
+        MoviesListPagingSource(getSearchedMoviesByName, tempQuery)
 
     private val _statusMessage = MutableLiveData<EventVraper<String>>()
     val statusMessage: LiveData<EventVraper<String>>
@@ -65,8 +69,11 @@ class MovieVievModel @Inject constructor(
             _listFavoriteMovies.postValue(getMoviesWishlist.execute())
         }
         chechWishlistNullOrEmpty()
+
+        moviesListPagingSourceSearchByName.tempQuery = tempQuery
     }
-    suspend fun loadForTakeChanges(){
+
+    suspend fun loadForTakeChanges() {
         CoroutineScope(Dispatchers.IO).launch {
             _listFavoriteMovies.postValue(getMoviesWishlist.execute())
         }
@@ -76,7 +83,6 @@ class MovieVievModel @Inject constructor(
 
     suspend fun deleteSingleMovieFromWishlist(movieId: Int) {
         deleteSingleMovieFromWishlist.execute(movieId)
-//        _statusMessage.postValue(EventVraper("movie DELETED"))
         chechWishlistNullOrEmpty()
     }
 
@@ -95,10 +101,7 @@ class MovieVievModel @Inject constructor(
     }
 
     //TESTING PAGING
-
     val getFlovMovies = Pager(
-        // Configure how data is loaded by passing additional properties to
-        // PagingConfig, such as prefetchDistance.
         PagingConfig(
             pageSize = Constance.PAGE_SIZE,
             prefetchDistance = Constance.PREFETCH_DISTANCE,
@@ -110,7 +113,45 @@ class MovieVievModel @Inject constructor(
             delay(1000)
             loadingFinished()
         }
-        MoviesListPagingSource(getMovies)
+        moviesListPagingSourcePopularSearch
+    }.flow
+        .cachedIn(viewModelScope)
+
+    private var currentQuery = MutableLiveData("empty")
+
+    fun changeCurrentQuery(nextQuery: String){
+        currentQuery.value = nextQuery
+    }
+
+    val testMoviesSearchByNamePaging = currentQuery.switchMap {
+        testPagingSearchByName(it)
+    }
+
+    fun testPagingSearchByName(query: String) =
+        Pager(
+            PagingConfig(
+                pageSize = Constance.PAGE_SIZE,
+                prefetchDistance = Constance.PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ), pagingSourceFactory = {
+                MoviesListPagingSource(getSearchedMoviesByName, query)
+            }
+        ).liveData
+
+
+    val searchMovieByNamePaging = Pager(
+        PagingConfig(
+            pageSize = Constance.PAGE_SIZE,
+            prefetchDistance = Constance.PREFETCH_DISTANCE,
+            enablePlaceholders = false
+        )
+    ) {
+        viewModelScope.launch {
+            itIsLoadingNov()
+            delay(1000)
+            loadingFinished()
+        }
+        MoviesListPagingSource(getSearchedMoviesByName, tempQuery)
     }.flow
         .cachedIn(viewModelScope)
 
@@ -126,44 +167,18 @@ class MovieVievModel @Inject constructor(
 
      */
 
-    // todo do not need
-//    val updateFlovMovies = flow {
-//        val items = updateMovie.invoke() ?: throw RuntimeException("updateFlovMovies is null")
-//        emit(items)
-//    }
-
     suspend fun addSingleMovieToWishlist(movie: MovieSimple) {
-//        val oldList = listOf(listFavoriteMovies.value)
         saveSingleMovieToWishlist.execute(movie)
-//        if (oldList != listFavoriteMovies.value){
-//            _statusMessage.postValue(EventVraper("movie successfully add to Wishlist"))
-//        }
-//        Log.d(Constance.TAG, "add to favorite")
     }
 
-    suspend fun fakeDeleteOfItem(movie: MovieSimple){
+    suspend fun fakeDeleteOfItem(movie: MovieSimple) {
         deleteSingleMovieFromWishlist.execute(movie.id)
-//        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
         saveSingleMovieToWishlist.execute(movie)
     }
 
-    suspend fun searchMovieByName(searcherQuery: String) {
-        itIsLoadingNov()
-        viewModelScope.launch {
-            try {
-                if (isNetAvailable(application)) {
-                    withContext(Dispatchers.Main) {
-                        _listMovies.value = getSearchedMoviesByName.execute(searcherQuery)
-                        loadingFinished()
-                    }
-                } else {
-                    throw RuntimeException("Internet problem")
-                }
-            } catch (e: Exception) {
-                throw RuntimeException("catch MovieVievModel - searchMovieByName")
-            }
-        }
-
+    fun searchMovieByName(searcherQuery: String) {
+        tempQuery = searcherQuery
+        moviesListPagingSourceSearchByName.tempQuery = tempQuery
     }
 
     private suspend fun itIsLoadingNov() {
@@ -180,10 +195,10 @@ class MovieVievModel @Inject constructor(
 
     suspend fun loadImagesList(imageId: Int) {
         withContext(Dispatchers.Main) {
-            _listImages.value = getImages.invoke(imageId)
+            _listImages.value = getImages(imageId).data
         }
     }
-
+/*
     fun isNetAvailable(context: Context?): Boolean {
         if (context == null) return false
         val connectivityManager =
@@ -209,6 +224,8 @@ class MovieVievModel @Inject constructor(
         }
         return false
     }
+
+ */
 
     fun makeTestLog() {
         Log.d(Constance.TAG, "vievmodel is vork")

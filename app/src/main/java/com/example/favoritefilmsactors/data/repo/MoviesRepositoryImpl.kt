@@ -2,6 +2,7 @@ package com.example.favoritefilmsactors.data.repo
 
 import android.util.Log
 import com.example.favoritefilmsactors.data.remote.models.movie.MovieItemNetEntity
+import com.example.favoritefilmsactors.data.remote.models.movie.images.Poster
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieCacheDataSource
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieLocalDataSource
 import com.example.favoritefilmsactors.data.repo.datasource.movie.MovieRemoteDataSource
@@ -61,18 +62,31 @@ class MoviesRepositoryImpl @Inject constructor(
 //        return getMoviesFromCache(pageIndex)
     }
 
-
-    override suspend fun getSearchedMoviesByNameUseCase(query: String): List<MovieSimple> {
-        val result = movieRemoteDataSource.getSearchedMoviesByName(query)
-//        if (result.isSuccessful){
-        return result.body()?.movies?.map {
-            it.convertToSimpleEntity()
+    override suspend fun getSearchedMoviesByNameUseCase(query:String, pageIndex: Int): ResourceVrap<List<MovieSimple>> {
+        val response = movieRemoteDataSource.getSearchedMoviesByName(
+            querySearch = query,
+            pageIndex = pageIndex
+        )
+        response.exception?.let {
+            return ResourceVrap.Error(exception = it)
         }
-            ?: throw RuntimeException("error or NULL in MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
-//        } else {
-//            throw RuntimeException("loading failed MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
-//        }
+        return ResourceVrap.Success(response.body.movies.map {
+            it.convertToSimpleEntity()
+        })
     }
+
+
+//    override suspend fun getSearchedMoviesByNameUseCase(query: String): List<MovieSimple> {
+//        val result = movieRemoteDataSource.getSearchedMoviesByName(query)
+////        if (result.isSuccessful){
+//        return result.body()?.movies?.map {
+//            it.convertToSimpleEntity()
+//        }
+//            ?: throw RuntimeException("error or NULL in MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
+////        } else {
+////            throw RuntimeException("loading failed MoviesRepositoryImpl-getSearchedMoviesByNameUseCase")
+////        }
+//    }
 
 //    override suspend fun updateMovies(): List<MovieItemNetEntity>? {
 //        return null
@@ -89,27 +103,47 @@ class MoviesRepositoryImpl @Inject constructor(
 //        return nevUpdatedList
 //    }
 
-    override suspend fun getListOfImages(imageId: Int): List<ImagesItem> {
-        // make normal
+    override suspend fun getListOfImages(imageId: Int): ResourceVrap<List<ImagesItem>> {
 
-        val result = movieRemoteDataSource.downloadImagesFromNet(imageId)
+        val response = movieRemoteDataSource.downloadImagesFromNet(imageId)
+        response.exception?.let {
+            return ResourceVrap.Error(exception = it)
+        }
         val listForReturn = mutableListOf<ImagesItem>()
-        if (result.isSuccessful) {
-            Log.d(Constance.TAG, "good load images")
-            val prepare = result.body()?.posters!!
-            for (elemnt in prepare) {
-                Log.d(Constance.TAG, "getListOfImages: ${elemnt.filePath}")
-                if (prepare.indexOf(elemnt) % 5 == 0) {
-                    ImagesItem(filePath = Constance.BASE_PATH_IMAGE + elemnt.filePath).also {
-                        if (listForReturn.size <= MAX_SIZE_IMAGE_LIST) {
-                            // add just 4 elements
-                            listForReturn.add(it)
-                        } else return listForReturn.toList()
-                    }
-                }
+        val prepare = response.body.posters?.let {
+            it.filter { poster: Poster ->
+                it.indexOf(poster) % LOAD_EVERY_NUMBER == 0
+            }.map { poster2: Poster ->
+                ImagesItem(filePath = Constance.BASE_PATH_IMAGE + poster2.filePath)
             }
-        } else Log.d(Constance.TAG, "ERROR in load images")
-        return listForReturn.toList()
+        }!!
+        for (element in prepare){
+            if (listForReturn.size <= MAX_SIZE_IMAGE_LIST) {
+                // add just 4 elements
+                listForReturn.add(element)
+            } else return ResourceVrap.Success(listForReturn.toList())
+        }
+        return ResourceVrap.Success(listForReturn)
+
+        // todo make normal - DONE
+//        val result = movieRemoteDataSource.downloadImagesFromNet(imageId)
+//        val listForReturn = mutableListOf<ImagesItem>()
+//        if (result.isSuccessful) {
+//            Log.d(Constance.TAG, "good load images")
+//            val prepare = result.body()?.posters!!
+//            for (elemnt in prepare) {
+//                Log.d(Constance.TAG, "getListOfImages: ${elemnt.filePath}")
+//                if (prepare.indexOf(elemnt) % 5 == 0) {
+//                    ImagesItem(filePath = Constance.BASE_PATH_IMAGE + elemnt.filePath).also {
+//                        if (listForReturn.size <= MAX_SIZE_IMAGE_LIST) {
+//                            // add just 4 elements
+//                            listForReturn.add(it)
+//                        } else return listForReturn.toList()
+//                    }
+//                }
+//            }
+//        } else Log.d(Constance.TAG, "ERROR in load images")
+//        return listForReturn.toList()
     }
 
     override suspend fun saveSingleMovieToWishlist(movie: MovieItemEntityDB) {
@@ -178,5 +212,8 @@ class MoviesRepositoryImpl @Inject constructor(
 
     companion object {
         private const val MAX_SIZE_IMAGE_LIST = 4
+
+        // there are to many images
+        private const val LOAD_EVERY_NUMBER = 5
     }
 }

@@ -115,8 +115,6 @@ class FragmentMoviesList : Fragment() {
         binding.recVievPlaceHolder.adapter = movieAdapter
         collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
             movieAdapter.submitData(it)
-            // todo add exopy IMPL
-//            movieAdapter.submitList(it)
         }
     }
 
@@ -133,6 +131,7 @@ class FragmentMoviesList : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                binding.recVievPlaceHolder.alpha = 0.1F
 //                initSearchInsideSearchViev(newText, true)
                 return false
             }
@@ -146,13 +145,32 @@ class FragmentMoviesList : Fragment() {
 
     private fun initSearchInsideSearchViev(query: String?, needDelay: Boolean = false) {
         // todo make after paging
+        if (query?.isNotEmpty() == true && query.isNotBlank()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                movieVievModel.changeCurrentQuery(query!!)
+                movieVievModel.testMoviesSearchByNamePaging.observe(viewLifecycleOwner){
+                    CoroutineScope(Dispatchers.Main).launch{
+                        binding.recVievPlaceHolder.alpha = 1F
+                        movieAdapter.submitData(it)
+                    }
+                }
+            }
+        }
+
+
 //        binding.recVievPlaceHolder.alpha = 0.1F
 //        CoroutineScope(Dispatchers.IO).launch {
 //            if (needDelay) delay(2000)
 //            binding.recVievPlaceHolder.alpha = 1F
 //            if (query?.isNotEmpty() == true && query.isNotBlank()) {
 //                movieVievModel.searchMovieByName(query)
+//                collectFlovAndRepeatOnLifeCycle(movieVievModel.searchMovieByNamePaging) {
+//                    movieAdapter.submitData(it)
+//                }
+
 //                withContext(Dispatchers.Main) {
+//
+//
 //                    movieVievModel.listMovies.observe(viewLifecycleOwner) {
 //                        movieAdapter.submitList(it)
 //                    }

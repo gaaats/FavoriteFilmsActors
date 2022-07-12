@@ -8,12 +8,12 @@ import javax.inject.Inject
 
 class MovieVievModelFactory @Inject constructor(
     private val application: Application,
-    private val getMovies: GetMoviesUseCase,
+    private val getMovies: SearchMovieParentUseCase.GetMoviesUseCase,
     private val getMovImagesUseCase: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
     private val deleteSingleMovieFromWishlist: DeleteSingleMovieFromWishlist,
-    private val getSearchedMoviesByName: GetSearchedMoviesByNameUseCase
+    private val getSearchedMoviesByName: SearchMovieParentUseCase.GetSearchedMoviesByNameUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MovieVievModel(

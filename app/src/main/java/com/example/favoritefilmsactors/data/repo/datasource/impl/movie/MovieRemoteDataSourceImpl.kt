@@ -17,12 +17,12 @@ class MovieRemoteDataSourceImpl @Inject constructor(
         return safeApiCall { apiService.getPopularMovies(page = pageIndex) }
     }
 
-    override suspend fun downloadImagesFromNet(movieId: Int): Response<ImagesList> {
-        return apiService.getMoviesImages(movieId)
+    override suspend fun downloadImagesFromNet(movieId: Int): SimpleResponse<ImagesList> {
+        return safeApiCall { apiService.getMoviesImages(movieId) }
     }
 
-    override suspend fun getSearchedMoviesByName(querySearch: String): Response<MovieList> {
-        return apiService.getSearchedMoviesByName(query = querySearch)
+    override suspend fun getSearchedMoviesByName(querySearch: String, pageIndex: Int): SimpleResponse<MovieList> {
+        return safeApiCall { apiService.getSearchedMoviesByName(query = querySearch, page = pageIndex)}
     }
 
     private inline fun <T> safeApiCall(apiCall: () -> Response<T>): SimpleResponse<T> {

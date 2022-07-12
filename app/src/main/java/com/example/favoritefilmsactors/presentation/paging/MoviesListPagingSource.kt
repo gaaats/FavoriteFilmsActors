@@ -3,24 +3,27 @@ package com.example.favoritefilmsactors.presentation.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.domain.usecase.GetMoviesUseCase
+import com.example.favoritefilmsactors.domain.usecase.SearchMovieParentUseCase
 import javax.inject.Inject
 
 class MoviesListPagingSource @Inject constructor(
-    private val getMovies: GetMoviesUseCase
+    private val getMovies: SearchMovieParentUseCase,
+    private val queryString: String,
     ) : PagingSource<Int, MovieSimple>() {
+
+    var tempQuery = queryString
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieSimple> {
         val pageIndex = params.key ?: 1
         val previousPageIndex = if (pageIndex == 1) null else pageIndex - 1
 
-        val resultOfLoad = getMovies.invoke(pageIndex)
+        val resultOfLoad = getMovies.execute(query = tempQuery, pageIndex = pageIndex)
         resultOfLoad.exception?.let {
             return LoadResult.Error(it)
         }
 
         return LoadResult.Page(
-            data = resultOfLoad!!.data!!,
+            data = resultOfLoad.data!!,
             prevKey = previousPageIndex,
             nextKey = pageIndex + 1
         )
