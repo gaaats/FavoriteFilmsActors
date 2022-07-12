@@ -1,10 +1,8 @@
 package com.example.favoritefilmsactors.domain.usecase
 
-import androidx.room.Index
-import com.example.favoritefilmsactors.data.remote.models.movie.MovieItemNetEntity
 import com.example.favoritefilmsactors.domain.MovieRepository
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.presentation.vievmodels.ResourceVrap
+import com.example.favoritefilmsactors.utils.ResourceVrap
 import javax.inject.Inject
 
 class GetMoviesUseCase @Inject constructor (private val repository: MovieRepository) {

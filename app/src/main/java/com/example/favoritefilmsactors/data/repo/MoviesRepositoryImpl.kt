@@ -9,9 +9,11 @@ import com.example.favoritefilmsactors.data.room.entity.MovieItemEntityDB
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.MovieRepository
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
-import com.example.favoritefilmsactors.presentation.vievmodels.ResourceVrap
+import com.example.favoritefilmsactors.utils.ResourceVrap
 import com.example.favoritefilmsactors.utils.CustomMovieException
+import com.example.favoritefilmsactors.utils.SimpleResponse
 import com.example.favoritefilmsactors.utils.constance.Constance
+import retrofit2.Response
 import javax.inject.Inject
 
 class MoviesRepositoryImpl @Inject constructor(
@@ -28,21 +30,29 @@ class MoviesRepositoryImpl @Inject constructor(
     override suspend fun getMovies(pageIndex: Int): ResourceVrap<List<MovieSimple>> {
 
         val response = movieRemoteDataSource.downloadMoviesFromNet(pageIndex)
-        try {
-            if (response.isSuccessful && response.body() != null) {
-                Log.d(Constance.TAG, "good")
-                return ResourceVrap.Success(response.body()!!.movies.map {
-                    it.convertToSimpleEntity()
-                })
-            }
-            return ResourceVrap.Error(
-                exception = CustomMovieException(
-                    response.code().toString() + " " + response.errorBody().toString()
-                )
-            )
-        } catch (e: Exception) {
-            return ResourceVrap.Error(CustomMovieException(errorMessage = e.message.toString()))
+        response.exception?.let {
+            return ResourceVrap.Error(exception = it)
         }
+        return ResourceVrap.Success(response.body.movies.map {
+            it.convertToSimpleEntity()
+        })
+
+
+//        try {
+//            if (response.isSuccessful && response.body() != null) {
+//                Log.d(Constance.TAG, "good")
+//                return ResourceVrap.Success(response.body()!!.movies.map {
+//                    it.convertToSimpleEntity()
+//                })
+//            }
+//            return ResourceVrap.Error(
+//                exception = CustomMovieException(
+//                    response.code().toString() + " " + response.errorBody().toString()
+//                )
+//            )
+//        } catch (e: Exception) {
+//            return ResourceVrap.Error(CustomMovieException(errorMessage = e.message.toString()))
+//        }
 
 
 //        val preResult = getMoviesFromAPI(pageIndex)
@@ -50,6 +60,7 @@ class MoviesRepositoryImpl @Inject constructor(
 
 //        return getMoviesFromCache(pageIndex)
     }
+
 
     override suspend fun getSearchedMoviesByNameUseCase(query: String): List<MovieSimple> {
         val result = movieRemoteDataSource.getSearchedMoviesByName(query)

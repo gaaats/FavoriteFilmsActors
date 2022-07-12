@@ -1,4 +1,4 @@
-package com.example.favoritefilmsactors.presentation.vievmodels
+package com.example.favoritefilmsactors.utils
 
 // A generic class that contains data and status about loading this data.
 sealed class ResourceVrap<T>(
