@@ -19,6 +19,8 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "API_KEY", API_KEY)
+        buildConfigField("String", "API_KEY_NEVS", API_KEY_NEVS)
+        buildConfigField("String", "BASE_URL_NEVS_API", NEVS_API_BASE_URL)
         buildConfigField("String", "BASE_URL", BASE_URL)
         buildConfigField("String", "BASE_PATH_IMAGE", BASE_PATH_IMAGE)
 

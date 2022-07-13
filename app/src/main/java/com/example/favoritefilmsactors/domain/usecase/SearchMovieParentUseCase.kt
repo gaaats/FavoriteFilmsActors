@@ -1,7 +1,7 @@
 package com.example.favoritefilmsactors.domain.usecase
 
-import com.example.favoritefilmsactors.domain.MovieRepository
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
+import com.example.favoritefilmsactors.domain.repo.MovieRepository
 import com.example.favoritefilmsactors.utils.ResourceVrap
 import javax.inject.Inject
 

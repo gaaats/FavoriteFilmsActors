@@ -6,7 +6,5 @@ sealed class ResourceVrap<T>(
     val exception: Throwable? = null,
 ) {
     class Success<T>(data: T) : ResourceVrap<T>(data)
-    class Loading<T>(data: T? = null) : ResourceVrap<T>(data)
     class Error<T>(exception: Throwable, data: T? = null) : ResourceVrap<T>(exception = exception, data = data )
-    class Empty<T>: ResourceVrap<T>()
 }

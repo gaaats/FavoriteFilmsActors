@@ -8,10 +8,7 @@ import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
 import com.example.favoritefilmsactors.domain.usecase.*
 import com.example.favoritefilmsactors.presentation.paging.MoviesListPagingSource
-import com.example.favoritefilmsactors.utils.CurrentState
-import com.example.favoritefilmsactors.utils.CustomMovieException
-import com.example.favoritefilmsactors.utils.ResourceVrap
-import com.example.favoritefilmsactors.utils.SimpleResponse
+import com.example.favoritefilmsactors.utils.*
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -139,7 +136,7 @@ class MovieVievModel @Inject constructor(
                     prefetchDistance = Constance.PREFETCH_DISTANCE,
                     enablePlaceholders = false
                 )
-            ){
+            ) {
                 MoviesListPagingSource(getSearchedMoviesByName, currentQ)
             }.flow.cachedIn(viewModelScope)
         }
@@ -165,6 +162,12 @@ class MovieVievModel @Inject constructor(
             _loading.value = false
         }
     }
+
+    fun checkMovieIsFavoriteOrNot(movie: MovieSimple): Boolean {
+        if (listFavoriteMovies.value!!.contains(movie)) return true
+        return false
+    }
+
 /*
     fun isNetAvailable(context: Context?): Boolean {
         if (context == null) return false

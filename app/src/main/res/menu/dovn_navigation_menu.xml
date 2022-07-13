@@ -9,8 +9,15 @@
     </item>
     <item
         android:id="@+id/favoriteMoviesFragment"
-        android:title="Wishlist"
+        android:title="Wishlist Movies"
         android:icon="@drawable/ic_baseline_favorite_24">
+
+    </item>
+
+    <item
+        android:id="@+id/newsFragment"
+        android:title="News"
+        android:icon="@drawable/news">
 
     </item>
 </menu>
