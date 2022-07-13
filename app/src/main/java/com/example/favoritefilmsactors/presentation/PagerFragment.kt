@@ -14,6 +14,7 @@ import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.recviev.PagerAdapter
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
+import com.example.favoritefilmsactors.presentation.vievmodels.PagerMovieVievModel
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -27,24 +28,17 @@ class PagerFragment : Fragment() {
 
     @Inject
     lateinit var vievModelfactory: MovieVievModelFactory
-
     @Inject
     lateinit var pagerAdapter: PagerAdapter
 
-
-
-    val movieVievModel by lazy {
-        ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
+    private val movieVievModel by lazy {
+        ViewModelProvider(this, vievModelfactory)[PagerMovieVievModel::class.java]
     }
 
     val args: PagerFragmentArgs by navArgs()
     private var _binding: FragmentMoviesImagePagerBinding? = null
     private val binding
         get() = _binding ?: throw RuntimeException("FragmentMoviesImagePagerBinding is null")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,18 +53,14 @@ class PagerFragment : Fragment() {
         Log.d(Constance.TAG, "current id is: $currentMovieId")
         super.onViewCreated(view, savedInstanceState)
 
+        initLoadOfImages(currentMovieId)
+        iniAdapterSubmitList()
+    }
+
+    private fun initLoadOfImages(currentMovieId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             movieVievModel.loadImagesList(currentMovieId)
         }
-
-        iniAdapterSubmitList()
-
-
-
-//        binding.tv.setOnClickListener {
-//            movieVievModel.checkInside()
-//        }
-
     }
 
     private fun iniAdapterSubmitList() {
@@ -84,13 +74,4 @@ class PagerFragment : Fragment() {
         _binding = null
         super.onDestroyView()
     }
-
-    companion object {
-        fun generateMoviesImagePagerFragment(): PagerFragment {
-            return PagerFragment().apply {
-                arguments = Bundle()
-            }
-        }
-    }
-
 }

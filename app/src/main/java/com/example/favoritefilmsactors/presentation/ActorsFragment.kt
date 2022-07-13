@@ -31,7 +31,6 @@ class ActorsFragment : Fragment() {
     }
 
     companion object {
-
         @JvmStatic
         fun newInstance() =
             ActorsFragment().apply {

@@ -55,7 +55,7 @@ class FavoriteMoviesFragment : Fragment() {
         initAdapterAndLoadMoviesWishlist()
         createMethodSwipeAndDelete()
 
-//        checkListEmptyOrNotMakeVisible()
+        checkListEmptyOrNotMakeVisible()
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -83,7 +83,7 @@ class FavoriteMoviesFragment : Fragment() {
         initProgBar()
         lifecycleScope.launch {
             movieVievModel.loadFavoriteMovies()
-            checkListEmptyOrNotMakeVisible()
+//            checkListEmptyOrNotMakeVisible()
         }
         binding.recVievPlaceHolderOnWishlist.adapter = movieWishListAdapter
         movieVievModel.listFavoriteMovies.observe(viewLifecycleOwner) {
@@ -111,8 +111,6 @@ class FavoriteMoviesFragment : Fragment() {
                     .setPositiveButton("yes") { dialog, i ->
                         lifecycleScope.async {
                             movieVievModel.deleteSingleMovieFromWishlist(itemSwiped.id)
-                            delay(400)
-                            movieVievModel.loadForTakeChanges()
                             withContext(Dispatchers.Main){
                                 Snackbar.make(this@FavoriteMoviesFragment.view!!, "movie DELETED", Snackbar.LENGTH_SHORT).show()
                             }
@@ -120,7 +118,7 @@ class FavoriteMoviesFragment : Fragment() {
                     }
                     .setNegativeButton("no") { dialog, i ->
                         lifecycleScope.launch {
-                            movieVievModel.fakeDeleteOfItem(itemSwiped)
+                            movieVievModel.fakeDeleteOfItemMovie(itemSwiped)
                         }
                         movieWishListAdapter.notifyDataSetChanged()
                     }

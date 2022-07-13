@@ -37,23 +37,9 @@ class FragmentMoviesList : Fragment() {
         ViewModelProvider(this, vievModelfactory)[MovieVievModel::class.java]
     }
 
-//    private val initFunAddtoFav by lazy {
-//        movieAdapter.navigateMoreImages = {
-//            FragmentMoviesListDirections.actionFragmentMoviesListToPagerFragment(it).also {
-//                findNavController().navigate(it)
-//            }
-//            Log.d(Constance.TAG, "movieAdapter.navigate")
-//        }
-//        10
-//    }
-
     private var _binding: FragmentMoviesListBinding? = null
     private val binding
         get() = _binding ?: throw RuntimeException("FragmentMoviesListBinding is null")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,18 +51,9 @@ class FragmentMoviesList : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-/*
-        val retrofit = Retrofit.Builder()
-            .baseUrl(TMDBService.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val service = retrofit.create(TMDBService::class.java)
-        */
-
         initLoadingPopularMoviesOnMainScreen()
         initProgBar()
 
-//        initFunAddtoFav
         CoroutineScope(Dispatchers.IO).launch {
             initFunAddToWishlist()
         }
@@ -86,28 +63,6 @@ class FragmentMoviesList : Fragment() {
         movieVievModel.statusMessage.observe(viewLifecycleOwner){
             Snackbar.make(this.view!!, it.peekContent(), Snackbar.LENGTH_SHORT).show()
         }
-
-        /*
-//        binding.searchViev.setOnClickListener {
-//            /* TEST
-//            CoroutineScope(Dispatchers.IO).launch {
-//                val result = service.getSearchedMoviesByName(query = "паук")
-//                Log.d(Constance.TAG, "result is: ${result.code()}")
-//                result.body()!!.movies.forEach {
-//                    Log.d(Constance.TAG, "result is: ${it.title}")
-//                }
-//            }        */
-//            CoroutineScope(Dispatchers.IO).launch {
-//                movieVievModel.searchMovieByName("человек паук")
-//                delay(2000)
-//                withContext(Dispatchers.Main) {
-//                    movieVievModel.listMovies.observe(viewLifecycleOwner){
-//                        movieAdapter.submitList(it)
-//                    }
-//                }
-//            }
-//        }
-         */
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -126,7 +81,7 @@ class FragmentMoviesList : Fragment() {
 
         binding.searchViev.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                initSearchInsideSearchViev(query, false)
+                initSearchInsideSearchViev(query)
                 return false
             }
 
@@ -143,12 +98,12 @@ class FragmentMoviesList : Fragment() {
         }
     }
 
-    private fun initSearchInsideSearchViev(query: String?, needDelay: Boolean = false) {
+    private fun initSearchInsideSearchViev(query: String?) {
         // todo make after paging
         if (query?.isNotEmpty() == true && query.isNotBlank()) {
             CoroutineScope(Dispatchers.Main).launch {
-                movieVievModel.changeCurrentQuery(query!!)
-                movieVievModel.testMoviesSearchByNamePaging.observe(viewLifecycleOwner){
+                movieVievModel.changeCurrentQueryFromInputFlov(query!!)
+                collectFlovAndRepeatOnLifeCycle(movieVievModel.filmFlow) {
                     CoroutineScope(Dispatchers.Main).launch{
                         binding.recVievPlaceHolder.alpha = 1F
                         movieAdapter.submitData(it)
@@ -157,26 +112,6 @@ class FragmentMoviesList : Fragment() {
             }
         }
 
-
-//        binding.recVievPlaceHolder.alpha = 0.1F
-//        CoroutineScope(Dispatchers.IO).launch {
-//            if (needDelay) delay(2000)
-//            binding.recVievPlaceHolder.alpha = 1F
-//            if (query?.isNotEmpty() == true && query.isNotBlank()) {
-//                movieVievModel.searchMovieByName(query)
-//                collectFlovAndRepeatOnLifeCycle(movieVievModel.searchMovieByNamePaging) {
-//                    movieAdapter.submitData(it)
-//                }
-
-//                withContext(Dispatchers.Main) {
-//
-//
-//                    movieVievModel.listMovies.observe(viewLifecycleOwner) {
-//                        movieAdapter.submitList(it)
-//                    }
-//                }
-//            }
-//        }
     }
 
     private fun initNavigationForMoreImages() {
@@ -212,50 +147,14 @@ class FragmentMoviesList : Fragment() {
             }
         }
     }
-/*
-//    private fun getListFromNetvork(service: TMDBService) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val result = service.getPopularMovies()
-//            if (result.isSuccessful){
-//                Log.d(Constance.TAG, "good")
-//                for (elements in result.body()!!.movies){
-//                    Log.d(Constance.TAG, "element ${elements.title}")
-//                }
-//
-//            } else{
-//                Log.d(Constance.TAG, "bed")
-//                Log.d(Constance.TAG, "bed ${result.errorBody()}")
-//                Log.d(Constance.TAG, "bed ${result.code()}")
-//            }
-//        }
-//    }
-
- */
 
     override fun onDestroy() {
         _binding = null
         super.onDestroy()
     }
 
-    /*
-    companion object {
-        fun generateFragmentMoviesList(): FragmentMoviesList {
-            return FragmentMoviesList().apply {
-                arguments = Bundle()
-            }
-        }
-
-        fun openPager() {
-            NavHostFragment.findNavController(fragment = FragmentMoviesList())
-                .navigate(R.id.action_fragmentMoviesList_to_pagerFragment)
-        }
-    }
-     */
-
     companion object {
         private const val MIN_TIME_FOR_LOADING: Long = 1
-
-
     }
 }
 

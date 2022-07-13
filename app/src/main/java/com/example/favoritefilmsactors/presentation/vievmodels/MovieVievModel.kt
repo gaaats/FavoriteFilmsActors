@@ -1,21 +1,17 @@
 package com.example.favoritefilmsactors.presentation.vievmodels
 
-import android.app.AlertDialog
 import android.app.Application
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.*
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
-import androidx.paging.liveData
+import androidx.paging.*
 import com.example.favoritefilmsactors.data.room.entity.images.ImagesItem
 import com.example.favoritefilmsactors.domain.entity.MovieSimple
 import com.example.favoritefilmsactors.domain.usecase.*
 import com.example.favoritefilmsactors.presentation.paging.MoviesListPagingSource
+import com.example.favoritefilmsactors.utils.CurrentState
+import com.example.favoritefilmsactors.utils.CustomMovieException
+import com.example.favoritefilmsactors.utils.ResourceVrap
+import com.example.favoritefilmsactors.utils.SimpleResponse
 import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -26,7 +22,6 @@ import javax.inject.Inject
 class MovieVievModel @Inject constructor(
     private val application: Application,
     private val getMovies: SearchMovieParentUseCase.GetMoviesUseCase,
-    private val getImages: GetMovImagesUseCase,
     private val saveSingleMovieToWishlist: SaveSingleMovieToWishlist,
     private val getMoviesWishlist: GetMoviesWishlist,
     private val deleteSingleMovieFromWishlist: DeleteSingleMovieFromWishlist,
@@ -35,9 +30,9 @@ class MovieVievModel @Inject constructor(
 
     var tempQuery = "empty"
 
-    val moviesListPagingSourcePopularSearch = MoviesListPagingSource(getMovies, "empty")
-    val moviesListPagingSourceSearchByName =
-        MoviesListPagingSource(getSearchedMoviesByName, tempQuery)
+    private val currentQueryFromInputFlov = MutableStateFlow("empty")
+
+    val moviesListPagingSourcePopularSearch = MoviesListPagingSource(getMovies, tempQuery)
 
     private val _statusMessage = MutableLiveData<EventVraper<String>>()
     val statusMessage: LiveData<EventVraper<String>>
@@ -47,14 +42,9 @@ class MovieVievModel @Inject constructor(
     val listImages: LiveData<List<ImagesItem>>
         get() = _listImages
 
-    private var _listMovies = MutableLiveData<List<MovieSimple>>()
-    val listMovies: LiveData<List<MovieSimple>>
-        get() = _listMovies
-
     private var _listFavoriteMovies = MutableLiveData<List<MovieSimple>>()
     val listFavoriteMovies: LiveData<List<MovieSimple>>
         get() = _listFavoriteMovies
-
 
     private var _loading = MutableLiveData(false)
     val loading: LiveData<Boolean>
@@ -69,35 +59,6 @@ class MovieVievModel @Inject constructor(
             _listFavoriteMovies.postValue(getMoviesWishlist.execute())
         }
         chechWishlistNullOrEmpty()
-
-        moviesListPagingSourceSearchByName.tempQuery = tempQuery
-    }
-
-    suspend fun loadForTakeChanges() {
-        CoroutineScope(Dispatchers.IO).launch {
-            _listFavoriteMovies.postValue(getMoviesWishlist.execute())
-        }
-    }
-
-    private lateinit var moviesFlow: StateFlow<List<MovieSimple>>
-
-    suspend fun deleteSingleMovieFromWishlist(movieId: Int) {
-        deleteSingleMovieFromWishlist.execute(movieId)
-        chechWishlistNullOrEmpty()
-    }
-
-    suspend fun loadFavoriteMovies() {
-        itIsLoadingNov()
-        delay(1000)
-        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
-        chechWishlistNullOrEmpty()
-        loadingFinished()
-
-    }
-
-    private fun chechWishlistNullOrEmpty() {
-        if (listFavoriteMovies.value.isNullOrEmpty()) _wishlistIsEmptyOrNull.postValue(true)
-        else _wishlistIsEmptyOrNull.postValue(false)
     }
 
     //TESTING PAGING
@@ -117,17 +78,19 @@ class MovieVievModel @Inject constructor(
     }.flow
         .cachedIn(viewModelScope)
 
+    // live data - paging3
+/*
     private var currentQuery = MutableLiveData("empty")
 
-    fun changeCurrentQuery(nextQuery: String){
-        currentQuery.value = nextQuery
+    fun changeCurrentQueryFromInput(inputQuery: String) {
+        currentQuery.value = inputQuery
     }
 
     val testMoviesSearchByNamePaging = currentQuery.switchMap {
-        testPagingSearchByName(it)
+        testPagingSearchByNameUsingRetrofit(it)
     }
 
-    fun testPagingSearchByName(query: String) =
+    private fun testPagingSearchByNameUsingRetrofit(query: String) =
         Pager(
             PagingConfig(
                 pageSize = Constance.PAGE_SIZE,
@@ -137,48 +100,58 @@ class MovieVievModel @Inject constructor(
                 MoviesListPagingSource(getSearchedMoviesByName, query)
             }
         ).liveData
+ */
 
+    suspend fun deleteSingleMovieFromWishlist(movieId: Int) {
+        deleteSingleMovieFromWishlist.execute(movieId)
+        chechWishlistNullOrEmpty()
+        delay(400)
+        _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+    }
 
-    val searchMovieByNamePaging = Pager(
-        PagingConfig(
-            pageSize = Constance.PAGE_SIZE,
-            prefetchDistance = Constance.PREFETCH_DISTANCE,
-            enablePlaceholders = false
-        )
-    ) {
-        viewModelScope.launch {
-            itIsLoadingNov()
-            delay(1000)
-            loadingFinished()
-        }
-        MoviesListPagingSource(getSearchedMoviesByName, tempQuery)
-    }.flow
-        .cachedIn(viewModelScope)
-
-    /*
-    // FOR NORMAL APP
-    val getFlovMovies = flow {
+    suspend fun loadFavoriteMovies() {
         itIsLoadingNov()
         delay(1000)
-        val items = getMovies.invoke(2) ?: throw RuntimeException("getFlovMovies is null")
-        emit(items)
+        try {
+            _listFavoriteMovies.postValue(getMoviesWishlist.execute())
+        } catch (e: Exception) {
+            _statusMessage.value = EventVraper(e.message!!)
+        }
+        chechWishlistNullOrEmpty()
         loadingFinished()
     }
 
-     */
+    private fun chechWishlistNullOrEmpty() {
+        if (listFavoriteMovies.value.isNullOrEmpty()) _wishlistIsEmptyOrNull.postValue(true)
+        else _wishlistIsEmptyOrNull.postValue(false)
+    }
+
+    suspend fun changeCurrentQueryFromInputFlov(inputQuery: String) {
+        currentQueryFromInputFlov.emit(inputQuery)
+    }
+
+    val filmFlow: Flow<PagingData<MovieSimple>>
+        get() {
+            val currentQ = currentQueryFromInputFlov.value
+            return Pager(
+                PagingConfig(
+                    pageSize = Constance.PAGE_SIZE,
+                    prefetchDistance = Constance.PREFETCH_DISTANCE,
+                    enablePlaceholders = false
+                )
+            ){
+                MoviesListPagingSource(getSearchedMoviesByName, currentQ)
+            }.flow.cachedIn(viewModelScope)
+        }
 
     suspend fun addSingleMovieToWishlist(movie: MovieSimple) {
         saveSingleMovieToWishlist.execute(movie)
     }
 
-    suspend fun fakeDeleteOfItem(movie: MovieSimple) {
+    // if user sviped for delete nut then pressed no in alert dialog
+    suspend fun fakeDeleteOfItemMovie(movie: MovieSimple) {
         deleteSingleMovieFromWishlist.execute(movie.id)
         saveSingleMovieToWishlist.execute(movie)
-    }
-
-    fun searchMovieByName(searcherQuery: String) {
-        tempQuery = searcherQuery
-        moviesListPagingSourceSearchByName.tempQuery = tempQuery
     }
 
     private suspend fun itIsLoadingNov() {
@@ -190,12 +163,6 @@ class MovieVievModel @Inject constructor(
     private suspend fun loadingFinished() {
         withContext(Dispatchers.Main) {
             _loading.value = false
-        }
-    }
-
-    suspend fun loadImagesList(imageId: Int) {
-        withContext(Dispatchers.Main) {
-            _listImages.value = getImages(imageId).data
         }
     }
 /*
