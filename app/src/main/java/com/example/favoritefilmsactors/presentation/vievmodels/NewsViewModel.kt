@@ -1,6 +1,7 @@
 package com.example.favoritefilmsactors.presentation.vievmodels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.favoritefilmsactors.domain.usecase.nevs.GetTopNevsUseCase
 import com.example.favoritefilmsactors.utils.CurrentResult
@@ -16,6 +17,7 @@ class NewsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val nevsFlov = flow {
+        Log.d("Test55", "nevsFlov ${this@NewsViewModel.toString()}")
         emit(CurrentResult.Loading( true))
         val result = getTopNevsUseCase.execute(1, "Ukraine")
         result.exception?.let {

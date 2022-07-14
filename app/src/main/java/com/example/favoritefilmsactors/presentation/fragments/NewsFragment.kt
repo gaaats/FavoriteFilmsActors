@@ -6,26 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.example.favoritefilmsactors.databinding.FragmentFavoriteMoviesBinding
 import com.example.favoritefilmsactors.databinding.FragmentNewsBinding
-import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.recviev.nevs.NevsListAdapter
-import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
-import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
 import com.example.favoritefilmsactors.presentation.vievmodels.NevsVievModelFactory
 import com.example.favoritefilmsactors.presentation.vievmodels.NewsViewModel
 import com.example.favoritefilmsactors.utils.ApiStatus
-import com.example.favoritefilmsactors.utils.CurrentResult
-import com.example.favoritefilmsactors.utils.constance.Constance
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -58,18 +48,18 @@ class NewsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.rvNews.adapter = nevsAdapter
-        collectFlovAndRepeatOnLifeCycle(nevsVievModel.nevsFlov) {
+        collectFlovFragment(nevsVievModel.nevsFlov) {
             when (it.status) {
                 ApiStatus.SUCCESS -> {
                     nevsAdapter.submitList(it.getNotNulldata())
                     binding.progressBar.visibility = View.GONE
                     binding.rvNews.visibility = View.VISIBLE
-                    Log.d("Test55", "good")
+                    Log.d("Test55", "good ${this.toString()}")
                 }
                 ApiStatus.LOADING -> {
                     binding.rvNews.visibility = View.INVISIBLE
                     binding.progressBar.visibility = View.VISIBLE
-                    delay(1500)
+                    delay(700)
                     Log.d("Test55", "LOADING")
                 }
                 ApiStatus.ERROR -> {
@@ -86,7 +76,7 @@ class NewsFragment : Fragment() {
 
         nevsAdapter.setOnItemClickListener {
             NewsFragmentDirections.actionNewsFragmentToNevsInfoFragment(it).also { navDirect ->
-                findNavController().navigate(navDirect)
+                findNavController().navigate(navDirect, NavOptions.Builder().setLaunchSingleTop(true).build())
             }
             Log.d("nevsTag", "nevsAdapter.setOnItemClickListener")
         }

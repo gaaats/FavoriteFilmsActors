@@ -6,13 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.PagingData
 import com.example.favoritefilmsactors.databinding.FragmentMoviesListBinding
+import com.example.favoritefilmsactors.domain.entity.MovieSimple
 import com.example.favoritefilmsactors.presentation.recviev.MovieListAdapter
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModel
 import com.example.favoritefilmsactors.presentation.vievmodels.MovieVievModelFactory
@@ -45,18 +48,17 @@ class FragmentMoviesList : Fragment() {
     ): View {
         Log.d("currentstate", "onCreateView")
         _binding = FragmentMoviesListBinding.inflate(inflater, container, false)
+
+        initLoadingPopularMoviesOnMainScreen()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d("currentstate", "onViewCreated")
 
-        initLoadingPopularMoviesOnMainScreen()
+        initAdapterForRecViev()
         initProgBar()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            initFunAddToWishlist()
-        }
+        initFunAddToWishlist()
         initNavigationForMoreImages()
         createSearchByNameMovie()
 
@@ -68,7 +70,6 @@ class FragmentMoviesList : Fragment() {
 
     override fun onDestroyView() {
         // make it for normal updating after deleting movies from favorite
-
         movieAdapter.onDetachedFromRecyclerView(binding.recVievPlaceHolder)
         _binding = null
         Log.d("currentstate", "onDestroyView")
@@ -76,10 +77,13 @@ class FragmentMoviesList : Fragment() {
     }
 
     private fun initLoadingPopularMoviesOnMainScreen() {
-        binding.recVievPlaceHolder.adapter = movieAdapter
-        collectFlovAndRepeatOnLifeCycle(movieVievModel.getFlovMovies) {
+        collectFlovFragment(movieVievModel.getFlovMovies) {
             movieAdapter.submitData(it)
         }
+    }
+
+    private fun initAdapterForRecViev() {
+        binding.recVievPlaceHolder.adapter = movieAdapter
     }
 
     private fun createSearchByNameMovie() {
@@ -102,20 +106,15 @@ class FragmentMoviesList : Fragment() {
     }
 
     private fun initSearchInsideSearchViev(query: String?) {
-        // todo make after paging
         if (query?.isNotEmpty() == true && query.isNotBlank()) {
             binding.recVievPlaceHolder.alpha = 0.1F
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(700)
-                movieVievModel.changeCurrentQueryFromInputFlov(query!!)
-                collectFlovAndRepeatOnLifeCycle(movieVievModel.filmFlow) {
-                        binding.recVievPlaceHolder.alpha = 1F
-                        movieAdapter.submitData(it)
-                }
+            collectFlovFragment(movieVievModel.filmFlow) {
+                movieVievModel.changeCurrentQueryFromInputFlov(query)
+                binding.recVievPlaceHolder.alpha = 1F
+                movieAdapter.submitData(it)
             }
         }
     }
-
 
     private fun initNavigationForMoreImages() {
         movieAdapter.navigateMoreImages = {
@@ -124,16 +123,15 @@ class FragmentMoviesList : Fragment() {
             }
             Log.d(Constance.TAG, "movieAdapter.navigate")
         }
-        movieAdapter.checkMovieIsFavoriteOrNot={
+        movieAdapter.checkMovieIsFavoriteOrNot = {
             movieVievModel.checkMovieIsFavoriteOrNot(it)
         }
     }
 
-    private suspend fun initFunAddToWishlist() {
+    private fun initFunAddToWishlist() {
         movieAdapter.addToWishlist = {
             CoroutineScope(Dispatchers.IO).launch {
                 movieVievModel.addSingleMovieToWishlist(it)
-//                movieAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -159,7 +157,18 @@ class FragmentMoviesList : Fragment() {
     }
 }
 
-fun <T> Fragment.collectFlovAndRepeatOnLifeCycle(
+fun <T> Fragment.collectFlovFragment(
+    flow: Flow<T>,
+    functionSuspend: suspend (T) -> Unit
+) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            flow.collect(functionSuspend)
+        }
+    }
+}
+
+fun <T> AppCompatActivity.collectFlovActivity(
     flow: Flow<T>,
     functionSuspend: suspend (T) -> Unit
 ) {
@@ -169,3 +178,5 @@ fun <T> Fragment.collectFlovAndRepeatOnLifeCycle(
         }
     }
 }
+
+
