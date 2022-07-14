@@ -1,8 +1,11 @@
 package com.example.favoritefilmsactors.domain.entity
 
+import android.os.Parcelable
 import com.example.favoritefilmsactors.data.remote.models.nevs.Source
+import kotlinx.parcelize.Parcelize
 import kotlin.random.Random
 
+@Parcelize
 data class ArticleUIModel(
     val id: Int = Random.nextInt(from = 10, until = 50000),
     val author: String,
@@ -13,5 +16,4 @@ data class ArticleUIModel(
     val title: String,
     val url: String,
     val urlToImage: String,
-
-)
+):Parcelable

@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.EventListener
 import coil.load
 import com.example.favoritefilmsactors.R
 import com.example.favoritefilmsactors.databinding.NevsSingleItemBinding
@@ -21,6 +22,8 @@ class NevsListAdapter @Inject constructor() :
     ListAdapter<ArticleUIModel, NevsListAdapter.NevsRecVievHolder>(
         NevsDiffUtilListAdapter()
     ) {
+
+    private var onItemNevsClickListener : ((article: ArticleUIModel) -> Unit)? = null
 
     inner class NevsRecVievHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val binding = NevsSingleItemBinding.bind(itemView)
@@ -54,11 +57,11 @@ class NevsListAdapter @Inject constructor() :
                 }
             }
             root.setOnClickListener {
-                //TODO:
-//                onItemClickListener?.let {
-//                    it(article)
-//                }
+                onItemNevsClickListener?.invoke(currentItem)
             }
         }
+    }
+    fun setOnItemClickListener (listener: (article: ArticleUIModel)-> Unit){
+        onItemNevsClickListener = listener
     }
 }

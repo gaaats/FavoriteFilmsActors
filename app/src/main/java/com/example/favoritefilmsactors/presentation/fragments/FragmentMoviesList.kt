@@ -114,7 +114,6 @@ class FragmentMoviesList : Fragment() {
                 }
             }
         }
-
     }
 
 
@@ -125,23 +124,9 @@ class FragmentMoviesList : Fragment() {
             }
             Log.d(Constance.TAG, "movieAdapter.navigate")
         }
-
-        // here
         movieAdapter.checkMovieIsFavoriteOrNot={
             movieVievModel.checkMovieIsFavoriteOrNot(it)
         }
-
-
-//        movieAdapter.checkMovieIsFavoriteOrNot = {
-//            val a = lifecycleScope.async{
-//                movieVievModel.checkMovieIsFavoriteOrNot(it)
-//            }
-//            lifecycleScope.async {
-//                a.await()
-//            }
-//
-//
-//        }
     }
 
     private suspend fun initFunAddToWishlist() {

@@ -4,41 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragments.FragmentMoviesList">
+    android:orientation="vertical"
+    tools:context=".presentation.fragments.NevsInfoFragment">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_viev"
-        app:queryHint="@string/search_hint_enter_name_movie"
-        android:layout_width="match_parent"
-        android:background="@color/teal_201"
-        android:layout_height="50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-<!--        app:defaultQueryHint="enter name of movie"-->
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recVievPlaceHolder"
+    <WebView
+        android:id="@+id/webViewInfo"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/teal_200"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_viev" />
+        app:layout_constraintTop_toTopOf="parent">
+
+    </WebView>
 
     <ProgressBar
-        android:id="@+id/progBar"
+        android:id="@+id/progBarOnVebViewInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:indeterminate="true"
         android:indeterminateDrawable="@drawable/custom_prog_bar"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
+    <ImageView
+        android:id="@+id/imgError"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/ic_baseline_mood_sad"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
